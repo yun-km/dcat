@@ -21,6 +21,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
+        Auth::logout();
         return view('auth.register');
     }
 
@@ -48,6 +49,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect()->route('verification.notice');
     }
 }

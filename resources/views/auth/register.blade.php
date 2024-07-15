@@ -44,6 +44,9 @@
                                             <div data-mdb-input-init class="form-outline flex-fill mb-0">
                                                 <input type="password" id="form3Example4c" class="form-control" name="password" />
                                                 <label class="form-label" for="form3Example4c">Password</label>
+                                                @error('password')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
                                             </div>
                                         </div>
 
