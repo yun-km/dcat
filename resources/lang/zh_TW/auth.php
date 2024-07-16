@@ -3,8 +3,10 @@
 return [
     'Login' => '登入',
     'Register'=> '註冊',
+    'Name' => '使用者名稱',
     'Email' => '電子郵件',
     'Password' => '密碼',
+    'RepeatPassword' => '確認密碼',
     'haveAccount'=> '還沒有帳號嗎?',
 
     'failed' => '請確認您的帳號密碼是否輸入正確。',
