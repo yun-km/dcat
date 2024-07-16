@@ -22,6 +22,12 @@
                                     <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
                                         {{ __('Verify Your Email Address') }}</p>
 
+                                    <form id="verify-code-form"">
+                                        <input type="text" id="code" placeholder="輸入驗證碼">
+                                        <button type="button" onclick="verifyCode()">驗證</button>
+                                        <div id="error-message" class="text-danger mt-2"></div>
+                                    </form>
+
                                     @if (session('resent'))
                                         <div class="alert alert-success" role="alert">
                                             {{ __('A fresh verification link has been sent to your email address.') }}
@@ -30,11 +36,7 @@
 
                                     {{ __('Before proceeding, please check your email for a verification link.') }}
                                     {{ __('If you did not receive the email') }},
-                                    <form class="d-inline" method="POST" action="{{ route('verification.resend') }}">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-link p-0 m-0 align-baseline">{{ __('click here to request another') }}</button>.
-                                    </form>
+                                    <button type="button" onclick="resendCode()" class="btn btn-link p-0 m-0 align-baseline">{{ __('click here to request another') }}</button>.
 
                                 </div>
                                 <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
@@ -51,6 +53,29 @@
         </div>
     </div>
     <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        function resendCode() {
+            axios.post('/email/resend')
+            .then(function(response) {
+                alert(response.data.message);
+            })
+            .catch(function(error) {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = error.response.data.message;
+            });
+        }
+        function verifyCode() {
+            const code = document.getElementById('code').value;
+            axios.post('/verify-email', { code: code })
+                .then(response => {
+                    window.location.href = '/home';
+                })
+                .catch(error => {
+                    const errorMessage = document.getElementById('error-message');
+                    errorMessage.textContent = error.response.data.message || 'An error occurred';
+                });
+        }
+    </script>
 </body>
 
 </html>

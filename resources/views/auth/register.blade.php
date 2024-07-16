@@ -70,7 +70,7 @@
                                             <label class="fas fa-key fa-lg me-3 fa-fw" for="userRePassword"></label>
                                             <div class="form-outline flex-fill mb-0">
                                                 <input type="password" id="userRePassword" class="form-control" required
-                                                    name="password" placeholder="{{ __('auth.RepeatPassword') }}" />
+                                                    name="password_confirmation" placeholder="{{ __('auth.RepeatPassword') }}" />
                                             </div>
                                         </div>
 
