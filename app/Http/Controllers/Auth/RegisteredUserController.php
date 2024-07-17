@@ -88,15 +88,28 @@ class RegisteredUserController extends Controller
         $code = rand(100000, 999999);
         $expireTime = Carbon::now()->addMinutes(3);
 
-        VerificationMailLog::create([
-            'ip' => $deviceInfo['ip'],
-            'device_id' => $deviceInfo['device_id'],
-            'browser' => $deviceInfo['browser'],
-            'os' => $deviceInfo['os'],
-            'email' => $email,
-            'verification_code' => $code,
-            'expires_at' => $expireTime,
-        ]);
+        $verificationLog = VerificationMailLog::where('email', $email)->first();
+
+        if ($verificationLog) {
+            $verificationLog->update([
+                'ip' => $deviceInfo['ip'],
+                'device_id' => $deviceInfo['device_id'],
+                'browser' => $deviceInfo['browser'],
+                'os' => $deviceInfo['os'],
+                'verification_code' => $code,
+                'expires_at' => $expireTime,
+            ]);
+        } else {
+            VerificationMailLog::create([
+                'ip' => $deviceInfo['ip'],
+                'device_id' => $deviceInfo['device_id'],
+                'browser' => $deviceInfo['browser'],
+                'os' => $deviceInfo['os'],
+                'email' => $email,
+                'verification_code' => $code,
+                'expires_at' => $expireTime,
+            ]);
+        }
 
         Mail::send("emails.verification", ["code" => $code, "email" => $email], function (Message $message) use ($email) {
             $message->to($email);

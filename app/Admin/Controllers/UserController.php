@@ -2,7 +2,8 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Repositories\User;
+// use App\Admin\Repositories\User;
+use App\Models\User;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -21,15 +22,25 @@ class UserController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('name');
             $grid->column('email');
-            $grid->column('email_verified_at');
+            $grid->column('email_verified_at')->display(function ($email_verified_at) {
+                if ($email_verified_at) {
+                    return date('Y-m-d H:i:s', strtotime($email_verified_at));
+                }
+                return ''; 
+            });
             $grid->column('password');
             $grid->column('remember_token');
-            $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
-        
+
+            $grid->column('created_at')->display(function ($created_at) {
+                return date('Y-m-d H:i:s', strtotime($created_at));
+            });
+            $grid->column('updated_at')->sortable()->display(function ($updated_at) {
+                return date('Y-m-d H:i:s', strtotime($updated_at));
+            });
+
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-        
+
             });
         });
     }
@@ -69,7 +80,6 @@ class UserController extends AdminController
             $form->text('email_verified_at');
             $form->text('password');
             $form->text('remember_token');
-        
             $form->display('created_at');
             $form->display('updated_at');
         });
