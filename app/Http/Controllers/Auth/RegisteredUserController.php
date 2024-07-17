@@ -103,6 +103,11 @@ class RegisteredUserController extends Controller
             $message->subject("dcat驗證信件");
         });
 
+        Log::build([
+            'driver' => 'single',
+            'path' => storage_path('logs/verificationMail.log'),
+        ])->info('user email: '. $email .'verification code: ' . $code );
+
         return response()->json(['message' => '驗證碼已發送']);
     }
 }
