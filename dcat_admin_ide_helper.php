@@ -49,6 +49,14 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection abilities
      * @property Grid\Column|Collection last_used_at
      * @property Grid\Column|Collection email_verified_at
+     * @property Grid\Column|Collection ip
+     * @property Grid\Column|Collection device_id
+     * @property Grid\Column|Collection browser
+     * @property Grid\Column|Collection os
+     * @property Grid\Column|Collection email
+     * @property Grid\Column|Collection verification_code
+     * @property Grid\Column|Collection expires_at
+     * @property Grid\Column|Collection is_verified
      *
      * @method Grid\Column|Collection id(string $label = null)
      * @method Grid\Column|Collection name(string $label = null)
@@ -88,6 +96,14 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection abilities(string $label = null)
      * @method Grid\Column|Collection last_used_at(string $label = null)
      * @method Grid\Column|Collection email_verified_at(string $label = null)
+     * @method Grid\Column|Collection ip(string $label = null)
+     * @method Grid\Column|Collection device_id(string $label = null)
+     * @method Grid\Column|Collection browser(string $label = null)
+     * @method Grid\Column|Collection os(string $label = null)
+     * @method Grid\Column|Collection email(string $label = null)
+     * @method Grid\Column|Collection verification_code(string $label = null)
+     * @method Grid\Column|Collection expires_at(string $label = null)
+     * @method Grid\Column|Collection is_verified(boolean $label = false)
      */
     class Grid {}
 
@@ -132,6 +148,14 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection abilities
      * @property Show\Field|Collection last_used_at
      * @property Show\Field|Collection email_verified_at
+     * @property Show\Field|Collection ip
+     * @property Show\Field|Collection device_id
+     * @property Show\Field|Collection browser
+     * @property Show\Field|Collection os
+     * @property Show\Field|Collection email
+     * @property Show\Field|Collection verification_code
+     * @property Show\Field|Collection expires_at
+     * @property Show\Field|Collection is_verified
      *
      * @method Show\Field|Collection id(string $label = null)
      * @method Show\Field|Collection name(string $label = null)
@@ -171,11 +195,19 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection abilities(string $label = null)
      * @method Show\Field|Collection last_used_at(string $label = null)
      * @method Show\Field|Collection email_verified_at(string $label = null)
+     * @method Show\Field|Collection ip(string $label = null)
+     * @method Show\Field|Collection device_id(string $label = null)
+     * @method Show\Field|Collection browser(string $label = null)
+     * @method Show\Field|Collection os(string $label = null)
+     * @method Show\Field|Collection email(string $label = null)
+     * @method Show\Field|Collection verification_code(string $label = null)
+     * @method Show\Field|Collection expires_at(string $label = null)
+     * @method Show\Field|Collection is_verified(boolean $label = false)
      */
     class Show {}
 
     /**
-     
+
      */
     class Form {}
 
@@ -183,19 +215,19 @@ namespace Dcat\Admin {
 
 namespace Dcat\Admin\Grid {
     /**
-     
+
      */
     class Column {}
 
     /**
-     
+
      */
     class Filter {}
 }
 
 namespace Dcat\Admin\Show {
     /**
-     
+
      */
     class Field {}
 }

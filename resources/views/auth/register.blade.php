@@ -30,29 +30,31 @@
                                         @csrf
 
                                         <div class="d-flex flex-row align-items-center mb-4">
-                                            <label class="fas fa-user fa-lg me-3 fa-fw"
-                                                for="userName"></label>
-                                            <div class="form-outline flex-fill mb-0">
-                                                <input type="text" id="uerName" class="form-control" required
-                                                    name="name" placeholder="{{ __('auth.Name') }}"
-                                                    value="{{ old('name') }}" />
-                                                @error('name')
-                                                    <span class="text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex flex-row align-items-center mb-4">
                                             <label class="fas fa-envelope fa-lg me-3 fa-fw"
                                                 for="userEmail"></label>
                                             <div class="form-outline flex-fill mb-0">
                                                 <input type="email" id="userEmail" class="form-control" required
                                                     name="email" placeholder="{{ __('auth.Email') }}"
                                                     value="{{ old('email') }}" />
+                                                <div id="error-message" class="text-danger mt-2"></div>
                                                 @error('email')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <label class="fas fa-envelope-open fa-lg me-3 fa-fw"
+                                                for="userVerification"></label>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="uerVerification" class="form-control" required
+                                                    name="verification" placeholder="{{ __('auth.Verification') }}"
+                                                    value="{{ old('verification') }}" />
+                                                @error('verification')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            <button type="button" class="btn btn-primary btn-sm ms-2" onclick="sendCode()">{{ __('auth.Send') }}</button>
                                         </div>
 
                                         <div class="d-flex flex-row align-items-center mb-4">
@@ -99,6 +101,76 @@
         </div>
     </div>
     <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform;
+
+            return {
+                ip: '',  // 需要后端获取
+                device_id: getDeviceId(),
+                platform: platform,
+                browser: getBrowser(userAgent),
+                os: getOS(userAgent)
+            };
+        }
+
+        function getDeviceId() {
+            let deviceId = localStorage.getItem('deviceId');
+            if (!deviceId) {
+                deviceId = 'device-' + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('deviceId', deviceId);
+            }
+            return deviceId;
+        }
+
+        function getBrowser(userAgent) {
+            if (userAgent.indexOf('Firefox') !== -1) return 'Firefox';
+            if (userAgent.indexOf('Chrome') !== -1) return 'Chrome';
+            if (userAgent.indexOf('Safari') !== -1) return 'Safari';
+            if (userAgent.indexOf('MSIE') !== -1 || userAgent.indexOf('Trident') !== -1) return 'Internet Explorer';
+            if (userAgent.indexOf('Edge') !== -1) return 'Edge';
+            return 'Unknown';
+        }
+
+        function getOS(userAgent) {
+            if (userAgent.indexOf('Windows NT 10.0') !== -1) return 'Windows 10';
+            if (userAgent.indexOf('Windows NT 6.3') !== -1) return 'Windows 8.1';
+            if (userAgent.indexOf('Windows NT 6.2') !== -1) return 'Windows 8';
+            if (userAgent.indexOf('Windows NT 6.1') !== -1) return 'Windows 7';
+            if (userAgent.indexOf('Mac OS X') !== -1) return 'Mac OS X';
+            if (userAgent.indexOf('Linux') !== -1) return 'Linux';
+            if (userAgent.indexOf('Android') !== -1) return 'Android';
+            if (userAgent.indexOf('like Mac OS X') !== -1) return 'iOS';
+            return 'Unknown';
+        }
+
+        function sendCode() {
+            document.getElementById('error-message').textContent = '';
+            const email = document.getElementById('userEmail').value;
+            const deviceInfo = getDeviceInfo();
+
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    deviceInfo.ip = data.ip;
+
+                    axios.post('/verification/sendEmail', { email: email, deviceInfo: deviceInfo })
+                        .then(function(response) {
+                            alert(response.data.message);
+                        })
+                        .catch(function(error) {
+                            if (error.response && error.response.data && error.response.data.errors) {
+                                const errors = error.response.data.errors;
+                                if (errors.email) {
+                                    document.getElementById('error-message').textContent = errors.email[0];
+                                }
+                            }
+                        });
+                })
+                .catch(error => console.error('Error fetching IP address:', error));
+        }
+    </script>
 </body>
 
 </html>

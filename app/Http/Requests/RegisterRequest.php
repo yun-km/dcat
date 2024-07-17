@@ -26,17 +26,15 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => [
-                'required',
-                'string',
-                'max:255'
-            ],
             'email' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
                 'unique:'.User::class
+            ],
+            'verification' => [
+                'required',
             ],
             'password' => [
                 'required',
@@ -49,8 +47,8 @@ class RegisterRequest extends FormRequest
     public function attributes()
     {
         return [
-            __('auth.name') => __("Username"),
             __('auth.email') => __("Email"),
+            __('auth.verification') => __("Verification"),
             __('auth.password') => __("Password"),
         ];
     }
