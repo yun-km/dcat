@@ -41,11 +41,6 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            if (!Auth::user()->hasVerifiedEmail()) {
-                return redirect()->route('verification.notice')->withErrors([
-                   'email' => __('auth.email_verification_required'),
-                ]);
-            }
             return redirect()->intended(RouteServiceProvider::HOME);
         }
 
