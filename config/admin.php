@@ -288,7 +288,8 @@ return [
         // User tables and model.
         'users_table' => 'admin_users',
         'users_model' => Dcat\Admin\Models\Administrator::class,
-
+        'custom_users_table' => 'users',
+        'custom_users_model' => App\Models\User::class,
         // Role table and model.
         'roles_table' => 'admin_roles',
         'roles_model' => Dcat\Admin\Models\Role::class,
