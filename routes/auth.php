@@ -27,8 +27,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/home', function () {
         return view('home');
     });
-    
-    Route::post('user/resetPassword', [LoginController::class, 'resetPassword'])
-    ->name('user.resetPassword');
 
+    Route::post('user/resetPassword', [LoginController::class, 'resetPassword'])
+                ->name('user.resetPassword');
+
+    Route::post('user/update-avatar', [LoginController::class, 'updateAvatar'])
+                ->name('user.updateAvatar');
 });

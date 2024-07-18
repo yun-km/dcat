@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -72,5 +73,25 @@ class LoginController extends Controller
         $user->save();
 
         return back()->with('status',  __('auth.reset password success'));
+    }
+
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = Auth::user();
+
+        $path = $request->file('avatar')->store('images', 'avatars');
+
+        if ($user->avatar) {
+            Storage::disk('avatars')->delete($user->avatar);
+        }
+
+        $user->avatar = $path;
+        $user->save();
+
+        return back()->with('success',  __('auth.avatars update success'));
     }
 }

@@ -12,6 +12,22 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Chocolate+Classical+Sans&display=swap" rel="stylesheet">
+      <style>
+        .avatar-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 767px) {
+            .avatar-img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+
 </head>
 
 <body class="antialiased">
@@ -25,7 +41,19 @@
                                 <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
 
                                     <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">{{ __('auth.ResetPassword') }}</p>
+                                    <form class="mx-1 mx-md-4" action="{{ route('user.updateAvatar') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class=" d-flex align-items-center">
+                                                <img src="{{ asset('storage/avatars/' . Auth::user()->avatar) }}" alt="User Avatar" class="img-thumbnail rounded-circle avatar-img">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary align-self-end">{{ __('auth.UploadAvatar') }}</button>
+                                        </div>
 
+                                        <div class="mb-4">
+                                            <input type="file" name="avatar" class="form-control" required>
+                                        </div>
+                                    </form>
                                     <form class="mx-1 mx-md-4" method="POST" action="{{ route('user.resetPassword') }}">
                                         @csrf
 

@@ -26,8 +26,9 @@ class UserController extends AdminController
                 if ($email_verified_at) {
                     return date('Y-m-d H:i:s', strtotime($email_verified_at));
                 }
-                return ''; 
+                return '';
             });
+            $grid->column('avatar');
             $grid->column('password');
             $grid->column('remember_token');
 
@@ -58,11 +59,18 @@ class UserController extends AdminController
             $show->field('id');
             $show->field('name');
             $show->field('email');
-            $show->field('email_verified_at');
+            $show->field('email_verified_at')->as(function ($email_verified_at) {
+                return date('Y-m-d H:i:s', strtotime($email_verified_at));
+            });
+            $show->field('avatar', __('user.fields.avatar'))->image(env('APP_URL') . '/storage/avatars');
             $show->field('password');
             $show->field('remember_token');
-            $show->field('created_at');
-            $show->field('updated_at');
+            $show->field('created_at')->as(function ($created_at) {
+                return date('Y-m-d H:i:s', strtotime($created_at));
+            });
+            $show->field('updated_at')->as(function ($updated_at) {
+                return date('Y-m-d H:i:s', strtotime($updated_at));
+            });
         });
     }
 
@@ -77,11 +85,26 @@ class UserController extends AdminController
             $form->display('id');
             $form->text('name');
             $form->text('email');
-            $form->text('email_verified_at');
+            $form->display('email_verified_at', trans('user.fields.email_verified_at'))->with(function ($value) {
+                return date('Y-m-d H:i:s', strtotime($value));
+            });
+            $form->image('avatar', trans('user.fields.avatar'))->disk('avatars')->autoUpload();
             $form->text('password');
             $form->text('remember_token');
-            $form->display('created_at');
-            $form->display('updated_at');
+            $form->display('created_at', trans('user.fields.created_at'))->with(function ($value) {
+                return date('Y-m-d H:i:s', strtotime($value));
+            });
+            $form->display('updated_at', trans('user.fields.updated_at'))->with(function ($value) {
+                return date('Y-m-d H:i:s', strtotime($value));
+            });
+        })->saving(function (Form $form) {
+            if ($form->password && $form->model()->get('password') != $form->password) {
+                $form->password = bcrypt($form->password);
+            }
+
+            if (! $form->password) {
+                $form->deleteInput('password');
+            }
         });
     }
 }

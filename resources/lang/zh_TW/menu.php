@@ -13,5 +13,7 @@ return [
         'extensions'    => '擴展',
         'scaffold'      => '代碼生成器',
         'icons'         => '圖示',
+        'custom-users' => '使用者',
+        'verificationMailLog'=> '驗證信紀錄',
     ],
 ];
