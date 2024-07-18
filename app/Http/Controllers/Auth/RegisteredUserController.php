@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use Carbon\Carbon;
 use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
@@ -82,32 +83,33 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
         ],[ __('auth.email') => __("Email"),]);
 
+        $client = new Client(['verify' => false]);
+        $response = $client->get('https://api.ipify.org?format=json');
+        $ipData = json_decode($response->getBody(), true);
         $deviceInfo = $request->input('deviceInfo');
         $email = $request->input('email');
-
         $code = rand(100000, 999999);
-        $expireTime = Carbon::now()->addMinutes(3);
 
         $verificationLog = VerificationMailLog::where('email', $email)->first();
 
         if ($verificationLog) {
             $verificationLog->update([
-                'ip' => $deviceInfo['ip'],
+                'ip' => $ipData['ip'],
                 'device_id' => $deviceInfo['device_id'],
                 'browser' => $deviceInfo['browser'],
                 'os' => $deviceInfo['os'],
                 'verification_code' => $code,
-                'expires_at' => $expireTime,
+                'expires_at' => now()->addMinutes(3),
             ]);
         } else {
             VerificationMailLog::create([
-                'ip' => $deviceInfo['ip'],
+                'ip' => $ipData['ip'],
                 'device_id' => $deviceInfo['device_id'],
                 'browser' => $deviceInfo['browser'],
                 'os' => $deviceInfo['os'],
                 'email' => $email,
                 'verification_code' => $code,
-                'expires_at' => $expireTime,
+                'expires_at' => now()->addMinutes(3),
             ]);
         }
 

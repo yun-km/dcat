@@ -107,7 +107,7 @@
             const platform = navigator.platform;
 
             return {
-                ip: '',  // 需要后端获取
+                ip: '',
                 device_id: getDeviceId(),
                 platform: platform,
                 browser: getBrowser(userAgent),
@@ -150,25 +150,18 @@
             const email = document.getElementById('userEmail').value;
             const deviceInfo = getDeviceInfo();
 
-            fetch('https://api.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => {
-                    deviceInfo.ip = data.ip;
-
-                    axios.post('/verification/sendEmail', { email: email, deviceInfo: deviceInfo })
-                        .then(function(response) {
-                            alert(response.data.message);
-                        })
-                        .catch(function(error) {
-                            if (error.response && error.response.data && error.response.data.errors) {
-                                const errors = error.response.data.errors;
-                                if (errors.email) {
-                                    document.getElementById('error-message').textContent = errors.email[0];
-                                }
-                            }
-                        });
+            axios.post('/verification/sendEmail', { email: email, deviceInfo: deviceInfo })
+                .then(function(response) {
+                    alert(response.data.message);
                 })
-                .catch(error => console.error('Error fetching IP address:', error));
+                .catch(function(error) {
+                    if (error.response && error.response.data && error.response.data.errors) {
+                        const errors = error.response.data.errors;
+                        if (errors.email) {
+                            document.getElementById('error-message').textContent = errors.email[0];
+                        }
+                    }
+                });
         }
     </script>
 </body>
