@@ -54,7 +54,7 @@
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
-                                            <button type="button" class="btn btn-primary btn-sm ms-2" onclick="sendCode()">{{ __('auth.Send') }}</button>
+                                            <button type="button" id="sendCodeBtn" class="btn btn-primary btn-sm ms-2" onclick="sendCode()">{{ __('auth.Send') }}</button>
                                         </div>
 
                                         <div class="d-flex flex-row align-items-center mb-4">
@@ -149,6 +149,21 @@
             document.getElementById('error-message').textContent = '';
             const email = document.getElementById('userEmail').value;
             const deviceInfo = getDeviceInfo();
+
+            const button = document.getElementById('sendCodeBtn');
+            button.disabled = true;
+
+            let countdown = 60;
+            const originalText = button.textContent;
+            const interval = setInterval(() => {
+                button.textContent = `${countdown} 秒後可再發送`;
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(interval);
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }
+            }, 1000);
 
             axios.post('/verification/sendEmail', { email: email, deviceInfo: deviceInfo })
                 .then(function(response) {
