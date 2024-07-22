@@ -37,9 +37,15 @@ class ProductController extends AdminController
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
+            $grid->enableDialogCreate();
+            $grid->showColumnSelector();
+            $grid->quickSearch(['id', 'title', 'summary']);
+            $grid->showQuickEditButton();
+
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-
+                $filter->like('title');
+                $filter->between('created_at')->date();
             });
         });
     }

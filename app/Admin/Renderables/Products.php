@@ -1,33 +1,40 @@
 <?php
 namespace App\Admin\Renderables;
 
-use App\Models\Product as ProductModel;
-use Dcat\Admin\Support\LazyRenderable;
 use Dcat\Admin\Widgets\Table;
+// use App\Models\Product;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Grid\LazyRenderable;
+use App\Admin\Repositories\Product;
 
 class Products extends LazyRenderable
 {
-    public function render()
+    public function grid(): Grid
     {
-        $id = $this->key;
+        return Grid::make(new Product(), function (Grid $grid) {
+            $userId = $this->key;
+            $grid->model()->where('user_id', $userId);
 
-        $data = ProductModel::where('user_id', $id)
-            ->get(['title', 'product_category_id', 'summary', 'description', 'is_active', 'created_at'])
-            ->map(function ($item) {
-                $item->is_active = $item->is_active ? '是' : '否';
-                return $item;
-            })
-            ->toArray();
+            $grid->column('id')->sortable();
+            $grid->column('title', __('admin.Products.Title'));
+            $grid->column('product_category_id', __('admin.Products.Product Category ID'));
+            $grid->column('summary', __('admin.Products.Summary'));
+            $grid->column('description', __('admin.Products.Description'));
+            $grid->column('is_active', __('admin.Products.Is Active'))->bool();
 
-        $titles = [
-            __('admin.Products.Title'),
-            __('admin.Products.Product Category ID'),
-            __('admin.Products.Summary'),
-            __('admin.Products.Description'),
-            __('admin.Products.Is Active'),
-            __('admin.Products.Created At'),
-        ];
+            $grid->column('created_at', __('admin.Products.Created At'));
+            $grid->column('updated_at', __('admin.Products.Updated At'));
 
-        return Table::make($titles, $data);
+            $grid->quickSearch(['id', 'title', 'summary']);
+            $grid->disableActions();
+            $grid->disableRowSelector();
+
+            $grid->filter(function (Grid\Filter $filter) {
+                $filter->panel();
+                $filter->padding();
+                $filter->equal('title', __('admin.Products.Title'));
+            });
+
+        });
     }
 }

@@ -235,5 +235,6 @@ return [
         'Description' => '描述',
         'Is Active' => '是否上架',
         'Created At' => '建立時間',
+        'Updated At' => '更新時間',
     ]
 ];
