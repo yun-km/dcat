@@ -15,4 +15,5 @@ Route::group([
     $router->get('/', 'HomeController@index');
     $router->resource('custom-users','UserController');
     $router->resource('verificationMailLog','VerificationMailLogController');
+    $router->resource('products','ProductController');
 });

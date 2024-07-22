@@ -15,5 +15,6 @@ return [
         'icons'         => '圖示',
         'custom-users' => '使用者',
         'verificationMailLog'=> '驗證信紀錄',
+        'products'=> '商品',
     ],
 ];

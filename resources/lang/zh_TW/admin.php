@@ -226,4 +226,14 @@ return [
         'minlength' => ':attribute 長度不能少於 :min。',
         'maxlength' => ':attribute 長度不能超過 :max。',
     ],
+
+    'Products' => [
+        'Seller Products' => '賣家產品',
+        'Title' => '產品標題',
+        'Product Category ID' => '種類',
+        'Summary' => '摘要',
+        'Description' => '描述',
+        'Is Active' => '是否上架',
+        'Created At' => '建立時間',
+    ]
 ];

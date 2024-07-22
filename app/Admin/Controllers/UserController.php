@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 // use App\Admin\Repositories\User;
+use App\Admin\Renderables\Products;
 use App\Models\User;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -22,6 +23,7 @@ class UserController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('name');
             $grid->column('email');
+            $grid->products->display(__('admin.Products.Seller Products'))->modal(Products::make());
             $grid->column('email_verified_at')->display(function ($email_verified_at) {
                 if ($email_verified_at) {
                     return date('Y-m-d H:i:s', strtotime($email_verified_at));
