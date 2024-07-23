@@ -23,8 +23,8 @@ class CreateProductsTable extends Migration
             $table->json('pictures')->nullable();
             $table->integer('product_category_id');
             $table->string('tags')->default('');
-            $table->tinyInteger('is_active')->default('0');
-            $table->string('slug')->default('');
+            $table->tinyInteger('is_active')->nullable()->default('0');
+            $table->string('slug')->nullable()->default('');
             $table->timestamps();
         });
     }

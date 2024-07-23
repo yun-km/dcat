@@ -11,6 +11,7 @@ namespace Dcat\Admin {
     use Illuminate\Support\Collection;
 
     /**
+     * @property Grid\Column|Collection products
      * @property Grid\Column|Collection id
      * @property Grid\Column|Collection name
      * @property Grid\Column|Collection type
@@ -48,12 +49,12 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection tokenable_id
      * @property Grid\Column|Collection abilities
      * @property Grid\Column|Collection last_used_at
+     * @property Grid\Column|Collection is_active
      * @property Grid\Column|Collection summary
      * @property Grid\Column|Collection cover
      * @property Grid\Column|Collection pictures
      * @property Grid\Column|Collection product_category_id
      * @property Grid\Column|Collection tags
-     * @property Grid\Column|Collection is_active
      * @property Grid\Column|Collection email_verified_at
      * @property Grid\Column|Collection ip
      * @property Grid\Column|Collection device_id
@@ -63,6 +64,7 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection expires_at
      * @property Grid\Column|Collection is_verified
      *
+     * @method Grid\Column|Collection products(string $label = null)
      * @method Grid\Column|Collection id(string $label = null)
      * @method Grid\Column|Collection name(string $label = null)
      * @method Grid\Column|Collection type(string $label = null)
@@ -100,12 +102,12 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection tokenable_id(string $label = null)
      * @method Grid\Column|Collection abilities(string $label = null)
      * @method Grid\Column|Collection last_used_at(string $label = null)
+     * @method Grid\Column|Collection is_active(string $label = null)
      * @method Grid\Column|Collection summary(string $label = null)
      * @method Grid\Column|Collection cover(string $label = null)
      * @method Grid\Column|Collection pictures(string $label = null)
      * @method Grid\Column|Collection product_category_id(string $label = null)
      * @method Grid\Column|Collection tags(string $label = null)
-     * @method Grid\Column|Collection is_active(string $label = null)
      * @method Grid\Column|Collection email_verified_at(string $label = null)
      * @method Grid\Column|Collection ip(string $label = null)
      * @method Grid\Column|Collection device_id(string $label = null)
@@ -120,6 +122,7 @@ namespace Dcat\Admin {
     class MiniGrid extends Grid {}
 
     /**
+     * @property Show\Field|Collection products
      * @property Show\Field|Collection id
      * @property Show\Field|Collection name
      * @property Show\Field|Collection type
@@ -157,12 +160,12 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection tokenable_id
      * @property Show\Field|Collection abilities
      * @property Show\Field|Collection last_used_at
+     * @property Show\Field|Collection is_active
      * @property Show\Field|Collection summary
      * @property Show\Field|Collection cover
      * @property Show\Field|Collection pictures
      * @property Show\Field|Collection product_category_id
      * @property Show\Field|Collection tags
-     * @property Show\Field|Collection is_active
      * @property Show\Field|Collection email_verified_at
      * @property Show\Field|Collection ip
      * @property Show\Field|Collection device_id
@@ -172,6 +175,7 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection expires_at
      * @property Show\Field|Collection is_verified
      *
+     * @method Show\Field|Collection products(string $label = null)
      * @method Show\Field|Collection id(string $label = null)
      * @method Show\Field|Collection name(string $label = null)
      * @method Show\Field|Collection type(string $label = null)
@@ -209,12 +213,12 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection tokenable_id(string $label = null)
      * @method Show\Field|Collection abilities(string $label = null)
      * @method Show\Field|Collection last_used_at(string $label = null)
+     * @method Show\Field|Collection is_active(string $label = null)
      * @method Show\Field|Collection summary(string $label = null)
      * @method Show\Field|Collection cover(string $label = null)
      * @method Show\Field|Collection pictures(string $label = null)
      * @method Show\Field|Collection product_category_id(string $label = null)
      * @method Show\Field|Collection tags(string $label = null)
-     * @method Show\Field|Collection is_active(string $label = null)
      * @method Show\Field|Collection email_verified_at(string $label = null)
      * @method Show\Field|Collection ip(string $label = null)
      * @method Show\Field|Collection device_id(string $label = null)

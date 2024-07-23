@@ -236,5 +236,11 @@ return [
         'Is Active' => '是否上架',
         'Created At' => '建立時間',
         'Updated At' => '更新時間',
-    ]
+    ],
+
+    'ProductCategory' => [
+        'select_parent_category'=> '父種類',
+        'no_parent_category'=> '無父種類',
+        'create_child_category' => '建立子種類',
+    ],
 ];

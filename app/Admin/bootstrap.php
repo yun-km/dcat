@@ -25,18 +25,3 @@ use Dcat\Admin\Models\Menu;
  * Admin::js('/packages/prettydocs/js/main.js');
  *
  */
-
- if (Menu::where('title', 'custom-users')->doesntExist()) {
-    Menu::create([
-        'title' => 'custom-users',
-        'icon'  => 'fa-users',
-        'uri'   => 'custom-users',
-    ]);
-}
-if (Menu::where('title', 'verificationMailLog')->doesntExist()) {
-    Menu::create([
-        'title' => 'verificationMailLog',
-        'icon'  => 'fa-users',
-        'uri'   => 'verificationMailLog',
-    ]);
-}

@@ -331,9 +331,9 @@ return [
         'sidebar_collapsed' => false,
 
         // light, primary, dark
-        'sidebar_style' => 'light',
+        'sidebar_style' => 'primary',
 
-        'dark_mode_switch' => false,
+        'dark_mode_switch' => true,
 
         // bg-primary, bg-info, bg-warning, bg-success, bg-danger, bg-dark
         'navbar_color' => '',
