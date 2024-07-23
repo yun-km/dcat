@@ -21,15 +21,15 @@ class ProductCategoryController extends AdminController
         return Grid::make(new ProductCategory(), function (Grid $grid) {
             $grid->column('id')->sortable();
             $grid->name->tree();
-            $grid->column('slug');
+            $grid->column('slug')->editable();
 
             $grid->column(__('admin.ProductCategory.create_child_category'))->display(__('admin.ProductCategory.create_child_category'))->expand(function () {
                 return ProductCategoryCreate::make()->payload(['parent_id' => $this->id]);
             });
 
             $grid->is_active()->switch();
-            $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
+            // $grid->column('created_at');
+            // $grid->column('updated_at')->sortable();
             $grid->quickSearch(['id', 'name']);
             $grid->showQuickEditButton();
             $grid->enableDialogCreate();
