@@ -33,4 +33,8 @@ class ProductCategory extends Model
     {
         return null;
     }
+
+    public function products() {
+        return $this->hasMany(Product::class);
+    }
 }

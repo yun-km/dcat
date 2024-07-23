@@ -2,10 +2,12 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Repositories\Product;
+use App\Models\User;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
+use App\Models\ProductCategory;
+use App\Admin\Repositories\Product;
 use Dcat\Admin\Http\Controllers\AdminController;
 
 class ProductController extends AdminController
@@ -18,22 +20,22 @@ class ProductController extends AdminController
     protected function grid()
     {
         return Grid::make(new Product(), function (Grid $grid) {
-            $grid->model()->with('user');
-            $grid->column('id')->sortable();
+            $grid->model()->with(['user', 'category']);
 
+            $grid->column('id')->sortable();
             $grid->column('user.name', 'User')->link(function () {
                 return route('dcat.admin.custom-users.index', ['id' => $this->user_id]);
             });
-
             $grid->column('title');
+            $grid->column('category.name' ,__('product.category'));
             $grid->column('summary');
             $grid->column('description');
             $grid->column('cover');
             $grid->column('pictures');
-            $grid->column('product_category_id');
+
             $grid->column('tags');
-            $grid->column('is_active');
-            $grid->column('slug');
+            $grid->is_active()->switch();
+            $grid->column('slug')->editable();
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
@@ -60,14 +62,19 @@ class ProductController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Product(), function (Show $show) {
+            // $show->model()->with(['user', 'category']);
             $show->field('id');
-            $show->field('user_id');
+            $show->field('user.name', __('product.user'))->as(function () {
+                return $this->user ? $this->user->name : '-';
+            });
             $show->field('title');
+            $show->field('category.name', __('product.category'))->as(function () {
+                return $this->category ? $this->category->name : '-';
+            });
             $show->field('summary');
             $show->field('description');
             $show->field('cover');
             $show->field('pictures');
-            $show->field('product_category_id');
             $show->field('tags');
             $show->field('is_active');
             $show->field('slug');
@@ -84,16 +91,21 @@ class ProductController extends AdminController
     protected function form()
     {
         return Form::make(new Product(), function (Form $form) {
+            $users = User::pluck('name', 'id')->toArray();
+            $categories = ProductCategory::pluck('name', 'id')->toArray();
+
             $form->display('id');
-            $form->text('user_id');
-            $form->text('title');
-            $form->text('summary');
-            $form->text('description');
-            $form->text('cover');
+            $form->select('user_id', __('product.user'))
+                ->options($users)->required();
+            $form->text('title')->required();
+            $form->select('product_category_id' ,__('product.category'))
+                ->options($categories)->required();
+            $form->text('summary')->required();
+            $form->text('description')->required();
+            $form->text('cover')->required();
             $form->text('pictures');
-            $form->text('product_category_id');
-            $form->text('tags');
-            $form->text('is_active');
+            $form->text('tags')->required();
+            $form->switch('is_active');
             $form->text('slug');
 
             $form->display('created_at');

@@ -1,4 +1,4 @@
-<?php 
+<?php
 return [
     'labels' => [
         'Product' => '商品',
@@ -18,4 +18,6 @@ return [
     ],
     'options' => [
     ],
+    'user' => '使用者',
+    'category'=> '商品種類',
 ];

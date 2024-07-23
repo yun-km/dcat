@@ -242,5 +242,6 @@ return [
         'select_parent_category'=> '父種類',
         'no_parent_category'=> '無父種類',
         'create_child_category' => '建立子種類',
+        'select_category'=> '請選擇商品種類',
     ],
 ];
