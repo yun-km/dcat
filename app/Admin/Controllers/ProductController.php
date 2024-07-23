@@ -39,7 +39,7 @@ class ProductController extends AdminController
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
-            $grid->enableDialogCreate();
+            // $grid->enableDialogCreate();
             $grid->showColumnSelector();
             $grid->quickSearch(['id', 'title', 'summary']);
             $grid->showQuickEditButton();
@@ -102,7 +102,7 @@ class ProductController extends AdminController
                 ->options($categories)->required();
             $form->text('summary')->required();
             $form->text('description')->required();
-            $form->text('cover')->required();
+            $form->image('cover')->required();
             $form->text('pictures');
             $form->text('tags')->required();
             $form->switch('is_active');

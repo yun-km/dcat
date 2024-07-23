@@ -21,10 +21,13 @@ class Product extends Model
     ];
 
     public function user() {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,"user_id");
     }
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'product_category_id');
+    }
+    public function types() {
+        return $this->hasMany(ProductItemType::class,'product_id');
     }
 }

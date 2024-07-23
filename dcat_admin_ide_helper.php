@@ -12,8 +12,9 @@ namespace Dcat\Admin {
 
     /**
      * @property Grid\Column|Collection products
-     * @property Grid\Column|Collection id
+     * @property Grid\Column|Collection is_active
      * @property Grid\Column|Collection name
+     * @property Grid\Column|Collection id
      * @property Grid\Column|Collection type
      * @property Grid\Column|Collection version
      * @property Grid\Column|Collection detail
@@ -49,7 +50,13 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection tokenable_id
      * @property Grid\Column|Collection abilities
      * @property Grid\Column|Collection last_used_at
-     * @property Grid\Column|Collection is_active
+     * @property Grid\Column|Collection product_item_types_id
+     * @property Grid\Column|Collection option_name
+     * @property Grid\Column|Collection product_id
+     * @property Grid\Column|Collection type_name
+     * @property Grid\Column|Collection product_item_type_option_id
+     * @property Grid\Column|Collection price
+     * @property Grid\Column|Collection total_quantity
      * @property Grid\Column|Collection summary
      * @property Grid\Column|Collection cover
      * @property Grid\Column|Collection pictures
@@ -65,8 +72,9 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection is_verified
      *
      * @method Grid\Column|Collection products(string $label = null)
-     * @method Grid\Column|Collection id(string $label = null)
+     * @method Grid\Column|Collection is_active(string $label = null)
      * @method Grid\Column|Collection name(string $label = null)
+     * @method Grid\Column|Collection id(string $label = null)
      * @method Grid\Column|Collection type(string $label = null)
      * @method Grid\Column|Collection version(string $label = null)
      * @method Grid\Column|Collection detail(string $label = null)
@@ -102,7 +110,13 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection tokenable_id(string $label = null)
      * @method Grid\Column|Collection abilities(string $label = null)
      * @method Grid\Column|Collection last_used_at(string $label = null)
-     * @method Grid\Column|Collection is_active(string $label = null)
+     * @method Grid\Column|Collection product_item_types_id(string $label = null)
+     * @method Grid\Column|Collection option_name(string $label = null)
+     * @method Grid\Column|Collection product_id(string $label = null)
+     * @method Grid\Column|Collection type_name(string $label = null)
+     * @method Grid\Column|Collection product_item_type_option_id(string $label = null)
+     * @method Grid\Column|Collection price(string $label = null)
+     * @method Grid\Column|Collection total_quantity(string $label = null)
      * @method Grid\Column|Collection summary(string $label = null)
      * @method Grid\Column|Collection cover(string $label = null)
      * @method Grid\Column|Collection pictures(string $label = null)
@@ -123,8 +137,9 @@ namespace Dcat\Admin {
 
     /**
      * @property Show\Field|Collection products
-     * @property Show\Field|Collection id
+     * @property Show\Field|Collection is_active
      * @property Show\Field|Collection name
+     * @property Show\Field|Collection id
      * @property Show\Field|Collection type
      * @property Show\Field|Collection version
      * @property Show\Field|Collection detail
@@ -160,7 +175,13 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection tokenable_id
      * @property Show\Field|Collection abilities
      * @property Show\Field|Collection last_used_at
-     * @property Show\Field|Collection is_active
+     * @property Show\Field|Collection product_item_types_id
+     * @property Show\Field|Collection option_name
+     * @property Show\Field|Collection product_id
+     * @property Show\Field|Collection type_name
+     * @property Show\Field|Collection product_item_type_option_id
+     * @property Show\Field|Collection price
+     * @property Show\Field|Collection total_quantity
      * @property Show\Field|Collection summary
      * @property Show\Field|Collection cover
      * @property Show\Field|Collection pictures
@@ -176,8 +197,9 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection is_verified
      *
      * @method Show\Field|Collection products(string $label = null)
-     * @method Show\Field|Collection id(string $label = null)
+     * @method Show\Field|Collection is_active(string $label = null)
      * @method Show\Field|Collection name(string $label = null)
+     * @method Show\Field|Collection id(string $label = null)
      * @method Show\Field|Collection type(string $label = null)
      * @method Show\Field|Collection version(string $label = null)
      * @method Show\Field|Collection detail(string $label = null)
@@ -213,7 +235,13 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection tokenable_id(string $label = null)
      * @method Show\Field|Collection abilities(string $label = null)
      * @method Show\Field|Collection last_used_at(string $label = null)
-     * @method Show\Field|Collection is_active(string $label = null)
+     * @method Show\Field|Collection product_item_types_id(string $label = null)
+     * @method Show\Field|Collection option_name(string $label = null)
+     * @method Show\Field|Collection product_id(string $label = null)
+     * @method Show\Field|Collection type_name(string $label = null)
+     * @method Show\Field|Collection product_item_type_option_id(string $label = null)
+     * @method Show\Field|Collection price(string $label = null)
+     * @method Show\Field|Collection total_quantity(string $label = null)
      * @method Show\Field|Collection summary(string $label = null)
      * @method Show\Field|Collection cover(string $label = null)
      * @method Show\Field|Collection pictures(string $label = null)
