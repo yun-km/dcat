@@ -10,7 +10,7 @@ class ProductItemTypeOption extends Model
 {
 	use HasDateTimeFormatter;
     protected $table = 'product_item_type_options';
-    protected $fillable = ['option_name', 'is_active'];
+    protected $fillable = ['option_name', 'is_active','product_item_types_id'];
 
     public function type() {
         return $this->belongsTo(ProductItemType::class, 'product_item_types_id');

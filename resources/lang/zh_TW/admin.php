@@ -244,4 +244,13 @@ return [
         'create_child_category' => '建立子種類',
         'select_category'=> '請選擇商品種類',
     ],
+
+    'ProductType' => [
+        'product_types'=> '商品規格',
+        'type_name'=> '規格名稱',
+        'options' => '選項',
+        'option_name'=> '選項名稱',
+        'create_product_type'=> '建立規格&選項',
+        'edit_product_type'=> '編輯此規格選項',
+    ],
 ];

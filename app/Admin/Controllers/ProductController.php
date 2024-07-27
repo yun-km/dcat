@@ -7,8 +7,11 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use App\Models\ProductCategory;
+
+use App\Admin\Renderables\ProductTypes;
 use App\Admin\Repositories\Product;
 use Dcat\Admin\Http\Controllers\AdminController;
+use App\Admin\Forms\ProductTypeCreate;
 
 class ProductController extends AdminController
 {
@@ -27,17 +30,23 @@ class ProductController extends AdminController
                 return route('dcat.admin.custom-users.index', ['id' => $this->user_id]);
             });
             $grid->column('title');
-            $grid->column('category.name' ,__('product.category'));
+            $grid->column('category.name' ,__('product.category'))->label();
+            $grid->column('tags')->label();
             $grid->column('summary');
             $grid->column('description');
-            $grid->column('cover');
-            $grid->column('pictures');
+            $grid->column(__('admin.ProductType.product_types'))->display(__('admin.ProductType.product_types'))->expand(function () {
+                return ProductTypes::make()->payload(['product_id' => $this->id]);
+            });
+            $grid->column(__('admin.ProductType.create_product_type'))->display(__('admin.ProductType.create_product_type'))->modal(function () {
+                return ProductTypeCreate::make()->payload(['product_id' => $this->id, 'action' => 'create']);
+            });
+            // $grid->column('cover');
+            // $grid->column('pictures');
 
-            $grid->column('tags');
             $grid->is_active()->switch();
-            $grid->column('slug')->editable();
-            $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
+            // $grid->column('slug')->editable();
+            // $grid->column('created_at');
+            // $grid->column('updated_at')->sortable();
 
             // $grid->enableDialogCreate();
             $grid->showColumnSelector();
@@ -62,7 +71,6 @@ class ProductController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Product(), function (Show $show) {
-            // $show->model()->with(['user', 'category']);
             $show->field('id');
             $show->field('user.name', __('product.user'))->as(function () {
                 return $this->user ? $this->user->name : '-';
@@ -94,22 +102,42 @@ class ProductController extends AdminController
             $users = User::pluck('name', 'id')->toArray();
             $categories = ProductCategory::pluck('name', 'id')->toArray();
 
-            $form->display('id');
-            $form->select('user_id', __('product.user'))
-                ->options($users)->required();
-            $form->text('title')->required();
-            $form->select('product_category_id' ,__('product.category'))
-                ->options($categories)->required();
-            $form->text('summary')->required();
-            $form->text('description')->required();
-            $form->image('cover')->required();
-            $form->text('pictures');
-            $form->text('tags')->required();
-            $form->switch('is_active');
-            $form->text('slug');
+            $form->row(function (Form\Row $row) use ($form) {
+                if (!$form->isCreating()) {
+                    $row->width(2)->display('id');
+                }
+                $row->width(10)->text('title')->required();
+            });
+            $form->row(function (Form\Row $form) use ($users, $categories) {
+                // $form->width(4)->text('username')->required();
+                $form->width(4)->select('user_id', __('product.user'))
+                    ->options($users)->required();
+                $form->width(4)->select('product_category_id' ,__('product.category'))
+                    ->options($categories)->required();
+                $form->width(4)->text('tags')->required();
 
-            $form->display('created_at');
-            $form->display('updated_at');
+            });
+
+            $form->row(function (Form\Row $row){
+                $row->text('summary')->required();
+                $row->text('description')->required();
+                $row->image('cover');
+                $row->text('pictures');
+            });
+
+            if (!$form->isCreating()) {
+                $form->row(function (Form\Row $row) {
+                    $row->width(6)->display('created_at');
+                    $row->width(6)->display('updated_at');
+                });
+            }
+
+            // $form->switch('is_active');
+            // $form->text('slug');
+
+
+            // $form->display('created_at');
+            // $form->display('updated_at');
         });
     }
 }

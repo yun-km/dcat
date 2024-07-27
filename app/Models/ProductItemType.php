@@ -10,7 +10,7 @@ class ProductItemType extends Model
 {
 	use HasDateTimeFormatter;
     protected $table = 'product_item_types';
-    protected $fillable = ['type_name', 'parent_id'];
+    protected $fillable = ['type_name', 'parent_id','product_id'];
 
     public function parent()
     {

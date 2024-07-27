@@ -17,4 +17,5 @@ Route::group([
     $router->resource('verification-mail-log','VerificationMailLogController');
     $router->resource('products','ProductController');
     $router->resource('product-categories','ProductCategoryController');
+    $router->resource('product-types','ProductItemTypeController');
 });
