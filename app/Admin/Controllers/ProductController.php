@@ -8,10 +8,12 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use App\Models\ProductCategory;
 
-use App\Admin\Renderables\ProductTypes;
 use App\Admin\Repositories\Product;
+use App\Admin\Forms\ProductTypeForm;
+use App\Admin\Renderables\ProductTypes;
+use App\Admin\Forms\OptionInventoryForm;
 use Dcat\Admin\Http\Controllers\AdminController;
-use App\Admin\Forms\ProductTypeCreate;
+use App\Admin\Renderables\ProductOptionInventories;
 
 class ProductController extends AdminController
 {
@@ -38,7 +40,14 @@ class ProductController extends AdminController
                 return ProductTypes::make()->payload(['product_id' => $this->id]);
             });
             $grid->column(__('admin.ProductType.create_product_type'))->display(__('admin.ProductType.create_product_type'))->modal(function () {
-                return ProductTypeCreate::make()->payload(['product_id' => $this->id, 'action' => 'create']);
+                return ProductTypeForm::make()->payload(['product_id' => $this->id]);
+            });
+
+            $grid->column(__('admin.ProductType.product_inventories'))->display(__('admin.ProductType.product_inventories'))->expand(function () {
+                return ProductOptionInventories::make()->payload(['product_id' => $this->id]);
+            });
+            $grid->column(__('admin.ProductType.edit_option_inventories'))->display(__('admin.ProductType.edit_option_inventories'))->modal(function () {
+                return OptionInventoryForm::make()->payload(['product_id' => $this->id]);
             });
             // $grid->column('cover');
             // $grid->column('pictures');

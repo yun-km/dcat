@@ -8,7 +8,7 @@ use Dcat\Admin\Contracts\LazyRenderable;
 use Dcat\Admin\Form\NestedForm as AdminNestedForm;
 
 
-class ProductTypeCreate extends Form implements LazyRenderable
+class ProductTypeForm extends Form implements LazyRenderable
 {
     use LazyWidget;
 
@@ -20,7 +20,7 @@ class ProductTypeCreate extends Form implements LazyRenderable
             ['id' => $input['id'] ?? null],
             [
                 'type_name' => $input['type_name'],
-                'product_id' => $input['product_id'], 
+                'product_id' => $input['product_id'],
             ]
         );
 
@@ -37,9 +37,10 @@ class ProductTypeCreate extends Form implements LazyRenderable
     }
     public function default()
     {
-        $productId = $this->payload['product_id'] ?? '';
-        if (isset($this->payload['action']) && $this->payload['action'] == 'edit' && $productId) {
-            $productItemType = ProductItemType::with('options')->find($productId);
+        // 如果有傳入type_id為編輯
+        $typeId = $this->payload['type_id'] ?? '';
+        if ($typeId) {
+            $productItemType = ProductItemType::with('options')->find($typeId);
             return $productItemType ? $productItemType->toArray() : [];
         }
         return [

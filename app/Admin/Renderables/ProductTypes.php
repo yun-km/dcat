@@ -6,8 +6,8 @@ use Dcat\Admin\Widgets\Table;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Grid\LazyRenderable;
 use App\Admin\Repositories\ProductItemType;
-// use App\Admin\Actions\Grid\ProductTypeCreate;
-use App\Admin\Forms\ProductTypeCreate;
+// use App\Admin\Actions\Grid\ProductTypeForm;
+use App\Admin\Forms\ProductTypeForm;
 
 class ProductTypes extends LazyRenderable
 {
@@ -31,10 +31,10 @@ class ProductTypes extends LazyRenderable
             })->label();
 
             // $grid->column(__('admin.ProductType.create_product_type'))->display(__('admin.ProductType.create_product_type'))->modal(function () {
-            //     return ProductTypeCreate::make()->payload(['product_id' => $this->id, 'action' => 'create']);
+            //     return ProductTypeForm::make()->payload(['product_id' => $this->id, 'action' => 'create']);
             // });
             $grid->column(__('admin.ProductType.edit_product_type'))->display(__('admin.ProductType.edit_product_type'))->modal(function () {
-                return ProductTypeCreate::make()->payload(['product_id' => $this->id, 'action' => 'edit']);
+                return ProductTypeForm::make()->payload(['type_id' => $this->id]);
             });
 
             $grid->disableToolbar();
@@ -46,7 +46,7 @@ class ProductTypes extends LazyRenderable
             ->withBorder();
 
             // $grid->tools(function (Grid\Tools $tools) {
-            //     $tools->append(new ProductTypeCreate());
+            //     $tools->append(new ProductTypeForm());
             // });
         });
     }
