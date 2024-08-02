@@ -1,13 +1,16 @@
 <?php
 namespace App\Admin\Renderables;
 
-use Dcat\Admin\Widgets\Table;
-// use App\Models\ProductItemType;
 use Dcat\Admin\Grid;
+// use App\Models\ProductItemType;
+use Dcat\Admin\Widgets\Modal;
+use Dcat\Admin\Widgets\Table;
 use Dcat\Admin\Grid\LazyRenderable;
-use App\Admin\Repositories\ProductItemType;
-// use App\Admin\Actions\Grid\ProductTypeForm;
 use App\Admin\Forms\ProductTypeForm;
+use Dcat\Admin\Grid\Displayers\Actions;
+// use App\Admin\Actions\Grid\ProductTypeForm;
+use App\Admin\Forms\OptionInventoryForm;
+use App\Admin\Repositories\ProductItemType;
 
 class ProductTypes extends LazyRenderable
 {
@@ -36,18 +39,33 @@ class ProductTypes extends LazyRenderable
             $grid->column(__('admin.ProductType.edit_product_type'))->display(__('admin.ProductType.edit_product_type'))->modal(function () {
                 return ProductTypeForm::make()->payload(['type_id' => $this->id]);
             });
+            $grid->actions(function (Actions $actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+                $actions->disableQuickEdit();
+                $actions->disableView();
+
+                $productId = $actions->getKey();
+                $modal = Modal::make()
+                    ->lg()
+                    ->title(__('admin.ProductType.create_product_type'))
+                    ->body(ProductTypeForm::make()->payload(['product_id' => $productId]))
+                    ->button( __('admin.ProductType.create_product_type'));
+                $actions->append($modal);
+
+                $modal = Modal::make()
+                    ->lg()
+                    ->title(__('admin.ProductType.create_option_inventories'))
+                    ->body(OptionInventoryForm::make()->payload(['product_id' => $productId]))
+                    ->button( __('admin.ProductType.create_option_inventories'));
+                $actions->append($modal);
+            });
+            // $grid->disableActions();
 
             $grid->disableToolbar();
             $grid->disablePagination();
-            $grid->disableActions()
-            ->disableRefreshButton()
-            ->disableCreateButton()
-            ->disableRowSelector()
-            ->withBorder();
-
-            // $grid->tools(function (Grid\Tools $tools) {
-            //     $tools->append(new ProductTypeForm());
-            // });
+            $grid->withBorder();
+            $grid->disableRowSelector();
         });
     }
 }

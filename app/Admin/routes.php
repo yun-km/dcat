@@ -18,4 +18,5 @@ Route::group([
     $router->resource('products','ProductController');
     $router->resource('product-categories','ProductCategoryController');
     $router->resource('product-types','ProductItemTypeController');
+    $router->resource('product-option-inventories', 'ProductOptionInventoryController');
 });

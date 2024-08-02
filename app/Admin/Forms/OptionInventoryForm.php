@@ -17,11 +17,8 @@ class OptionInventoryForm extends Form implements LazyRenderable
     public function handle(array $input)
     {
         \Log::info('Form Input:', $input);
-        $types = json_encode($input['types']);
-        \Log::info('types json:', ['types' => $types]);
 
-         // 只保留 product_item_type_option_id 字段
-         $filteredTypes = array_map(function ($type) {
+        $filteredTypes = array_map(function ($type) {
             return [
                 'type_id' => $type['id'],
                 'option_id' => $type['selected_option_id'],
@@ -31,7 +28,7 @@ class OptionInventoryForm extends Form implements LazyRenderable
         $typesJson = json_encode($filteredTypes);
         \Log::info('Filtered types json:', ['types' => $typesJson]);
 
-        $productOptionInventory = ProductOptionInventory::updateOrCreate(
+        ProductOptionInventory::updateOrCreate(
             ['product_item_type_option_id' => $typesJson ?? null],
             [
                 'product_id' => $input['id'],
@@ -41,14 +38,7 @@ class OptionInventoryForm extends Form implements LazyRenderable
             ]
         );
 
-        // if (isset($input['options'])) {
-        //     foreach ($input['options'] as $option) {
-        //         $productItemType->options()->updateOrCreate(
-        //             ['id' => $option['id'] ?? null],
-        //             ['option_name' => $option['option_name'], 'order' => $option['order']]
-        //         );
-        //     }
-        // }
+
         return $this->response()->success('设置成功')->refresh();
         // return $this->response()->success('设置成功');
     }

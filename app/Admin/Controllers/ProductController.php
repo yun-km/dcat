@@ -7,7 +7,8 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use App\Models\ProductCategory;
-
+use Dcat\Admin\Grid\Displayers\Actions;
+use Dcat\Admin\Widgets\Modal;
 use App\Admin\Repositories\Product;
 use App\Admin\Forms\ProductTypeForm;
 use App\Admin\Renderables\ProductTypes;
@@ -39,15 +40,32 @@ class ProductController extends AdminController
             $grid->column(__('admin.ProductType.product_types'))->display(__('admin.ProductType.product_types'))->expand(function () {
                 return ProductTypes::make()->payload(['product_id' => $this->id]);
             });
-            $grid->column(__('admin.ProductType.create_product_type'))->display(__('admin.ProductType.create_product_type'))->modal(function () {
-                return ProductTypeForm::make()->payload(['product_id' => $this->id]);
-            });
+            // $grid->column(__('admin.ProductType.create_product_type'))->display(__('admin.ProductType.create_product_type'))->modal(function () {
+            //     return ProductTypeForm::make()->payload(['product_id' => $this->id]);
+            // });
 
             $grid->column(__('admin.ProductType.product_inventories'))->display(__('admin.ProductType.product_inventories'))->expand(function () {
                 return ProductOptionInventories::make()->payload(['product_id' => $this->id]);
             });
-            $grid->column(__('admin.ProductType.edit_option_inventories'))->display(__('admin.ProductType.edit_option_inventories'))->modal(function () {
-                return OptionInventoryForm::make()->payload(['product_id' => $this->id]);
+            // $grid->column(__('admin.ProductType.create_option_inventories'))->display(__('admin.ProductType.create_option_inventories'))->modal(function () {
+            //     return OptionInventoryForm::make()->payload(['product_id' => $this->id]);
+            // });
+
+            $grid->actions(function (Actions $actions) {
+                $productId = $actions->getKey();
+                $modal = Modal::make()
+                    ->lg()
+                    ->title(__('admin.ProductType.create_product_type'))
+                    ->body(ProductTypeForm::make()->payload(['product_id' => $productId]))
+                    ->button( __('admin.ProductType.create_product_type'));
+                $actions->append($modal);
+
+                $modal = Modal::make()
+                    ->lg()
+                    ->title(__('admin.ProductType.create_option_inventories'))
+                    ->body(OptionInventoryForm::make()->payload(['product_id' => $productId]))
+                    ->button( __('admin.ProductType.create_option_inventories'));
+                $actions->append($modal);
             });
             // $grid->column('cover');
             // $grid->column('pictures');

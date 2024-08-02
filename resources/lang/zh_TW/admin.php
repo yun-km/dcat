@@ -252,6 +252,7 @@ return [
         'option_name'=> '選項名稱',
         'create_product_type'=> '建立規格&選項',
         'edit_product_type'=> '編輯此規格選項',
+        'create_option_inventories'=> '建立商品存貨',
         'edit_option_inventories'=> '編輯商品存貨',
         'product_inventories'=> '商品存貨',
     ],

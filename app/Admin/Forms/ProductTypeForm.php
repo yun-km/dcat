@@ -4,6 +4,7 @@ namespace App\Admin\Forms;
 use Dcat\Admin\Widgets\Form;
 use App\Models\ProductItemType;
 use Dcat\Admin\Traits\LazyWidget;
+use App\Models\ProductOptionInventory;
 use Dcat\Admin\Contracts\LazyRenderable;
 use Dcat\Admin\Form\NestedForm as AdminNestedForm;
 
@@ -17,7 +18,10 @@ class ProductTypeForm extends Form implements LazyRenderable
         \Log::info('Form Input:', $input);
 
         $productItemType = ProductItemType::updateOrCreate(
-            ['id' => $input['id'] ?? null],
+            [
+                'id' => $input['id'] ?? null,
+                'type_name' => $input['type_name'],
+            ],
             [
                 'type_name' => $input['type_name'],
                 'product_id' => $input['product_id'],
