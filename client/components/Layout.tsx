@@ -11,8 +11,10 @@ export const metadata: Metadata = {
 
 export default function Layout({
     children,
+    mainClass,
 }: Readonly<{
     children: React.ReactNode;
+    mainClass: any;
 }>) {
     return (
         <div id="app">
@@ -20,7 +22,7 @@ export default function Layout({
             <Header>
                 <TopNavbar  />
             </Header>
-            {/* <main className={mainClassNames}>{children}</main> */}
+            <main className={mainClass}>{children}</main>
             {/* <Footer></Footer>
             <BottomNavbar toggleSideMenu={toggleSideMenu} />
             <SideMenu

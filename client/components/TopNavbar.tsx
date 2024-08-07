@@ -1,20 +1,23 @@
-import React from "react";
-import {
-  Navbar,
-  NavbarBrand, 
-  NavbarContent, 
-  NavbarMenuToggle, 
-  NavbarMenu, 
-  NavbarItem, 
-  NavbarMenuItem, 
-  DropdownItem, 
+import {  
+  Navbar,   
+  NavbarBrand,  
+  NavbarContent,   
+  NavbarItem,   
+  NavbarMenuToggle,  
+  NavbarMenu,  
+  NavbarMenuItem
+} from "@nextui-org/navbar";
+
+import {  
+  Dropdown,  
   DropdownTrigger, 
-  Dropdown,
-  DropdownMenu, 
-  Avatar, 
-  Link, 
-  Button
-} from "@nextui-org/react";
+  DropdownMenu,  
+  DropdownItem
+} from "@nextui-org/dropdown";
+
+import {Avatar} from "@nextui-org/avatar";
+import {Button} from "@nextui-org/button";
+import {Link} from "@nextui-org/link";
 
 import Logo from "@/components/Logo";
 
