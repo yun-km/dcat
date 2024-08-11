@@ -65,7 +65,7 @@ export default function AddProduct({ title }: { title: string }) {
                                      <input type="text" id="pictures" className="col-span-10 bg-gray-50 border border-gray-300 text-sm rounded-lg  p-2.5" placeholder="pictures" required />
                                 </div>
 
-                                <div className="flex flex-col flex justify-center mb-0 sm:mt-8">
+                                <div className="flex-col flex justify-center mb-0 sm:mt-8">
                                 <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
                                     新增商品
                                 </button>
