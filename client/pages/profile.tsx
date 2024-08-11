@@ -7,10 +7,12 @@ import Image from 'next/image';
 import React from 'react';
 
 export default function Profile({ title }: { title: string }) {
-    const fileInputRef = React.createRef();
+    const fileInputRef = React.createRef<HTMLInputElement>();
 
     const handleButtonClick = () => {
-      fileInputRef.current.click();
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
+      }
     };
 
     return (
@@ -75,6 +77,7 @@ export default function Profile({ title }: { title: string }) {
                                 type="file"
                                 id="file_input"
                                 ref={fileInputRef}
+                                aria-label="avatar"
                                 style={{ display: 'none' }}
                             />
                             <button
