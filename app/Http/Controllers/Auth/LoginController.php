@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use App\Http\Controllers\Controller;
@@ -39,14 +40,48 @@ class LoginController extends Controller
             'password.required' => __('auth.passwordRequired'),
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended(RouteServiceProvider::HOME);
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.failed'),
+            ]);
         }
 
-        throw ValidationException::withMessages([
-            'password' => __('auth.failed'),
-        ]);
+        $user = Auth::user();
+        $user->api_token = Str::random(60);
+        $user->save();
+
+        return[
+            'result' => 'success',
+            'message' => __('Login success'),
+            'content' => [
+                'api_token' => $user->api_token,
+                'user' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar, 
+                ],
+            ],
+
+        ];
+    }
+
+    public function logout(Request $request)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $user->api_token = null;
+            $user->save();
+ 
+            return[
+                'result' => 'success',
+                'message' => __('Logout successful'),
+            ];
+        }
+    
+        return [
+            'result' => 'failure',
+            'message' => __('Logout failed. No authenticated user found.'),
+        ];
     }
 
     public function resetPassword(Request $request) {
