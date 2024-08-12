@@ -19,19 +19,28 @@ import {Avatar} from "@nextui-org/avatar";
 import {Button} from "@nextui-org/button";
 import {Link} from "@nextui-org/link";
 
-import Logo from "@/components/Logo";
+import {Logo} from "@/components/Logo";
+import { UserData } from "@/lib/models/User";
+import { postFetcher } from "@/lib/api";
+import useSWRMutation from 'swr/mutation';
+import { useRouter } from 'next/router';
+import {useEffect} from 'react';
 
-export default function App() {
+export function TopNavbar({ user }: { user: UserData }) {
+  const { trigger, data, error, isMutating } = useSWRMutation('/api/logout', postFetcher);
+  const router = useRouter();
+  const handleLogout = async (data: any) => {
+    await trigger();
+  };
+
+  useEffect(() => {
+    if (data?.result == "success") {
+      router.reload();
+    }
+  }, [data, router]);
+
   const menuItems = [
     "Profile",
-    "Dashboard",
-    "Activity",
-    "Analytics",
-    "System",
-    "Deployments",
-    "My Settings",
-    "Team Settings",
-    "Help & Feedback",
     "Log Out",
   ];
   return (
@@ -71,40 +80,42 @@ export default function App() {
       </NavbarContent>
 
       <NavbarContent as="div" className="items-end mb-3" justify="end">
-        <Dropdown placement="bottom-end">
-          <DropdownTrigger>
-            <Avatar
-              isBordered
-              as="button"
-              className="transition-transform"
-              color="secondary"
-              name="Jason Hughes"
-              size="sm"
-              src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-            />
-          </DropdownTrigger>
-          <DropdownMenu aria-label="Profile Actions" variant="flat">
-            <DropdownItem key="profile" className="h-14 gap-2">
-              <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">zoey@example.com</p>
-            </DropdownItem>
-            <DropdownItem key="settings">My Settings</DropdownItem>
-            <DropdownItem key="team_settings">Team Settings</DropdownItem>
-            <DropdownItem key="analytics">Analytics</DropdownItem>
-            <DropdownItem key="system">System</DropdownItem>
-            <DropdownItem key="configurations">Configurations</DropdownItem>
-            <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
-            <DropdownItem key="logout" color="danger">
-              Log Out
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-
-        <NavbarItem>
-          <Button as={Link} color="secondary" href="#" variant="flat" radius="full" size="sm">
-            Sign Up
-          </Button>
-        </NavbarItem>
+        {!user ? (
+          <NavbarItem>
+            <Button as={Link} color="secondary" href="#" variant="flat" radius="full" size="sm">
+              Sign Up
+            </Button>
+          </NavbarItem>
+        ) : (
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Avatar
+                  isBordered
+                  as="button"
+                  className="transition-transform m-2"
+                  color="secondary"
+                  name="Jason Hughes"
+                  size="sm"
+                  src={`/backed/avatars/${user.avatar}`}
+                />
+                <p className="m-2">{user.name}</p>
+              </div>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Profile Actions" variant="flat">
+              <DropdownItem key="profile" textValue="Profile" className="h-14 gap-2">
+                <Link href="/profile">
+                  <p className="font-semibold">Profile</p>
+                </Link>
+              </DropdownItem>
+              <DropdownItem key="logout" textValue="Log Out" color="danger">
+                <button type="button" onClick={handleLogout}>
+                  Log Out
+                </button>
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        )}
       </NavbarContent>
 
       <NavbarMenu>

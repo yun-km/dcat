@@ -6,8 +6,28 @@ import {Input} from "@nextui-org/input";
 import Image from 'next/image';
 import React from 'react';
 import { useRef } from 'react';
+import { GetServerSideProps } from "next";
+import { getSession } from "@/lib/session";
+import { UserData } from "@/lib/models/User";
 
-export default function AddProduct({ title }: { title: string }) {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    const session = await getSession(req, res);
+  
+    if (!session.user) {
+      return {
+        redirect: {
+          destination: '/login', // 如果未登录，重定向到登录页面
+          permanent: false,
+        },
+      };
+    }
+  
+    return {
+      props: { user: session.user }, // 如果已登录，将用户数据传递给页面组件
+    };
+  };
+
+export default function AddProduct({ user }: { user: UserData }) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const handleButtonClick = () => {
@@ -17,7 +37,7 @@ export default function AddProduct({ title }: { title: string }) {
     };
 
     return (
-        <Layout mainClass="flex w-full h-auto items-center justify-center">
+        <Layout mainClass="flex w-full h-auto items-center justify-center" user={user}>
             <Head>
                 <title>新增商品</title>
             </Head>

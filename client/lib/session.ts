@@ -1,16 +1,11 @@
 import { SessionOptions, getIronSession } from "iron-session";
 import { NextApiRequest, NextApiResponse } from "next";
+import { UserData } from "./models/User";
 
 export interface SessionData {
   user?: UserData;
   api_token?: string;
 }
-export interface UserData {
-  email: string;
-  avatar: string;
-  name: string;
-}
-
 
 export const sessionOptions: SessionOptions = {
   password: process.env.SESSION_SECRET as string,
