@@ -2,32 +2,40 @@ import Layout from "@/components/Layout";
 import Container from "@/components/Container";
 import Head from 'next/head';
 import Image from 'next/image';
-import React from 'react';
+import {useEffect} from 'react';
 import useSWRMutation from 'swr/mutation';
 import { useForm, FieldError } from 'react-hook-form';
+import { UserData } from "@/lib/models/User";
+import { postFetcher } from "@/lib/api";
+import { useRouter } from 'next/router';
+import { GetServerSideProps } from "next";
+import { getSession } from "@/lib/session";
 
-const postFetcher = (url: string, { arg }: any) => 
-  fetch(url, {
-    method: 'POST',
-    credentials: "include",
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' },
-    body: JSON.stringify(arg),
-  }).then(res => res.json());
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const session = await getSession(req, res);
 
-export default function Login({ title }: { title: string }) {
+  return {
+    props: { user: session.user || null  }, 
+  };
+};
+
+export default function Login({ user }: { user: UserData }) {
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const { trigger, data, error, isMutating } = useSWRMutation('/api/logout', postFetcher);
+  const { trigger, data:loginResult, error, isMutating } = useSWRMutation('/api/login', postFetcher);
+  const router = useRouter();
   const onSubmit = async (data: any) => {
-    try {
-      await trigger(data); 
-      console.log('Form submitted successfully');
-    } catch (err) {
-      console.error('Form submission error:', err);
-    }
+    await trigger(data);
   };
 
+  useEffect(() => {
+    if (loginResult?.result == "success") {
+      router.reload();
+      // router.push('/profile')
+    }
+  }, [loginResult, router]);
+
     return (
-        <Layout mainClass="flex w-full h-auto items-center justify-center">
+        <Layout mainClass="flex w-full h-auto items-center justify-center" user={user}>
             <Head>
                 <title>個人資訊</title>
             </Head>
@@ -70,7 +78,7 @@ export default function Login({ title }: { title: string }) {
 
                       <div className="flex justify-center">
                         <button
-                          type="submit"
+                          type="submit" disabled={isMutating}
                           className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
                         >
                           Login
@@ -86,17 +94,12 @@ export default function Login({ title }: { title: string }) {
                   </div>
 
                   <div className="flex justify-center items-center">
-                    {/* <img
-                      src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
-                      className="rounded-lg shadow-md"
-                      alt="Sample"
-                    /> */}
                     <Image
                       src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
                       className="rounded-lg shadow-md"
                       alt="Sample image"
-                      width={500} // 替換為實際圖片寬度
-                      height={500} // 替換為實際圖片高度
+                      width={500} 
+                      height={500} 
                     />
                   </div>
                 </div>
