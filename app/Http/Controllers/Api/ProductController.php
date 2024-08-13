@@ -23,28 +23,31 @@ class ProductController extends Controller
     {
         try {
             Log::info('Request Data: ' . json_encode($request->all()));
-            $user = Auth::user();
 
-            $validatedData = $request->validate([
+            $commonRules = [
                 'title' => 'required|string|max:191',
                 'summary' => 'required|string|max:191',
                 'description' => 'required|string|max:191',
-                'cover' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'product_category_id' => 'required|exists:product_categories,id',
                 'tags' => 'required|string|max:191',
-                'pictures.*' =>  'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
-
-            $slug = Str::slug($validatedData['title'], '-');
-            $validatedData['slug'] = $slug;
-
-            $path = $request->file('cover')->store('images', 'products');
-            $validatedData['cover'] = $path;
-
-            Log::info('Has pictures: ' . json_encode($request->hasFile('pictures')));
-            Log::info('Pictures Files: ' . json_encode($request->file('pictures')));
+            ];
+            
+            if (!$request->has('product_id')) {
+                $specificRules = [
+                    'cover' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                    'pictures.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                ];
+            } else {
+                $specificRules = [
+                    'cover' => 'required',
+                    'pictures.*' => 'required',
+                ];
+            }
+            $rules = array_merge($commonRules, $specificRules);
+            $validatedData = $request->validate($rules);
 
             $picturesPaths = [];
+            $path = "";
             if ($request->hasFile('pictures')) {
                 foreach ($request->file('pictures') as $key => $picture) {
                     if ($picture->isValid()) {
@@ -54,14 +57,41 @@ class ProductController extends Controller
                         Log::warning("Picture {$key} is not valid.");
                     }
                 }
-            } else {
-                Log::warning('No pictures were uploaded.');
-            }
-            Log::info('picturesPaths: ' .json_encode($picturesPaths));
+            } 
+            if ($request->hasFile('cover')) {
+                $path = $request->file('cover')->store('images', 'products');
+            } 
+            $validatedData['cover'] = $path;
             $validatedData['pictures'] = json_encode($picturesPaths); 
 
-            $validatedData['user_id'] = $user->id;
+            if ($request->has('product_id')) {
+                $product = Product::findOrFail($request->input('product_id'));
 
+                if ($request->hasFile('pictures')) {
+                    $existingPictures = json_decode($product->pictures, true);
+                    foreach ($existingPictures as $picture) {
+                        Storage::disk('products')->delete($picture);
+                    }
+                }  else {
+                    $validatedData['pictures'] = $product->pictures;
+                }
+                if ($request->hasFile('cover')) {
+                    Storage::disk('products')->delete($product->cover);
+                } else {
+                    $validatedData['cover'] = $product->cover;
+                }
+
+                $product->update($validatedData);
+    
+                return response()->json([
+                    'result' => 'success',
+                    'message' => 'Product updated successfully',
+                    'product' => $product
+                ], 200);
+            } 
+
+            $user = Auth::user();
+            $validatedData['user_id'] = $user->id;
             $product = Product::create($validatedData);
 
             return response()->json([
