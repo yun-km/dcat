@@ -158,7 +158,7 @@ export default function Profile({ user, api_token }: { user: UserData, api_token
                             </form>
                         </div>
                         <div className="w-full justify-center sm:flex-col gap-8 flex sm:w-1/3 items-center order-1  sm:order-2">
-                            <Avatar isBordered src={selectedFile || `/backed/avatars/${user.avatar}`} className="w-20 h-20 sm:w-28 sm:h-28 text-large" />
+                            <Avatar isBordered src={selectedFile || `/backed/images/avatars/${user.avatar}`} className="w-20 h-20 sm:w-28 sm:h-28 text-large" />
                             <input
                                 type="file"
                                 id="file_input"

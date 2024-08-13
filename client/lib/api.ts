@@ -55,7 +55,7 @@ export const formDataFetcher2 = async (key: string, { arg }: any) => {
   const formData = new FormData();
   
   for (const key in arg) {
-    if (key === 'pictures') {
+    if (key === 'pictures[]') {
       const files = arg[key] as FileList;
       Array.from(files).forEach(file => {
         formData.append('pictures[]', file);
