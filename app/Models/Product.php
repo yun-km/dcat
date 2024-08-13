@@ -15,6 +15,7 @@ class Product extends Model
         "summary",
         "description",
         "cover",
+        "pictures",
         "tags",
         "product_category_id",
         "user_id",
