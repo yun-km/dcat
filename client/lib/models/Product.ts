@@ -11,3 +11,16 @@ export type ProductInfo = {
   created_at: string;
   updated_at: string;
 }
+export type Types = {
+  types: Type[];
+}
+export type Type = {
+  id?: number;
+  typeName: string;
+  options: Option[];
+
+}
+export type Option = {
+  id?: number;
+  optionName: string;
+}

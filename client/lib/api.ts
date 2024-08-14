@@ -4,6 +4,7 @@ export const postFetcher = async (url: string, { arg }: any) => {
     credentials: "include",
     headers: {
       'Content-Type': 'application/json',
+       "Authorization": `Bearer ${arg?.api_token}`
     },
     body: JSON.stringify(arg),
   });

@@ -5,11 +5,11 @@ import React, { useRef, useEffect, useState } from 'react';
 import { GetServerSideProps } from "next";
 import { getSession } from "@/lib/session";
 import { UserData } from "@/lib/models/User";
-import { ProductInfo } from "@/lib/models/Product";
+import { ProductInfo, Types } from "@/lib/models/Product";
 import useSWRMutation from 'swr/mutation';
-import { useForm, Controller, FieldError } from 'react-hook-form';
+import { useForm, Controller, FieldError, useFieldArray } from 'react-hook-form';
 import { useRouter } from 'next/router';
-import { getFetcher, formDataFetcher2 } from "@/lib/api";
+import { getFetcher, formDataFetcher2, postFetcher } from "@/lib/api";
 import { ToastContainer, toast } from 'react-toastify';
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
@@ -30,14 +30,15 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 };
 
 export default function AddProduct({ user, api_token }: { user: UserData, api_token: string }) {
-  const [selectedStep, setSelectedStep] = useState<number>(1);
+  const [selectedStep, setSelectedStep] = useState<number>(3);
   const [productInfo, setProductInfo] = useState<ProductInfo | null>(null);
+  const [productTypes, setProductTypes] = useState<Types | null>(null);
   const renderStepContent = () => {
     switch (selectedStep) {
       case 1:
         return <AddProductItem api_token={api_token} setSelectedStep={setSelectedStep} setProductInfo={setProductInfo} productInfo={productInfo} />;
       case 2:
-        return <AddProductTypeOptions api_token={api_token} setSelectedStep={setSelectedStep} />;
+        return <AddProductItemType api_token={api_token} setSelectedStep={setSelectedStep} setProductTypes={setProductTypes} productTypes={productTypes} />;
       case 3:
         return <AddProductTypeOptions api_token={api_token} setSelectedStep={setSelectedStep} />;
       default:
@@ -673,4 +674,135 @@ export function AddProductTypeOptions({
       </div>
     </form>
   );
+}
+
+export function AddProductItemType({
+  api_token,
+  productTypes,
+  setProductTypes,
+  setSelectedStep
+}:{
+  api_token: string
+  productTypes?: Types | null;
+  setProductTypes: React.Dispatch<React.SetStateAction<Types | null>>; 
+  setSelectedStep: React.Dispatch<React.SetStateAction<number>>; 
+}) {
+  const { control, handleSubmit, register, setError } = useForm<Types>({
+    defaultValues:{
+      types: productTypes?.types || [{ id: undefined, typeName: '', options: [{ id: undefined, optionName: '' }] }]
+    }
+  });
+  
+  
+  const { fields: typeFields, append: appendType } = useFieldArray({
+      control,
+      name: 'types'
+  });
+
+  const { trigger, data, isMutating } = useSWRMutation('/backed/api/products-types-options', postFetcher);
+
+  const onSubmit = (data: any) => {
+    data['api_token'] = api_token
+    data['product_id'] = 22
+    console.log('Form Data:', data);
+    trigger(data)
+  };
+
+  useEffect(() => {
+    if(data?.result == "success") {
+      // toast.success('新增成功！')
+      // router.reload();
+      setProductTypes({ types: data?.types });
+      setSelectedStep(3);
+    }
+    if (data?.result === 'error') {
+      Object.keys(data.errors).forEach((key) => {
+        setError(key as keyof Types, {
+          type: 'manual',
+          message: data.errors[key][0] 
+        });
+      });
+    }
+  },[data]);  
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col ">
+        {typeFields.map((typeField, typeIndex) => (
+            <div key={typeField.id} className="pb-10 ">
+                <div className="flex items-center space-x-4">
+                    <label htmlFor={`typeName-${typeIndex}`} className="sm:text-right">規格{typeIndex + 1}名稱</label>
+                    <input
+                        {...register(`types.${typeIndex}.typeName`)}
+                        placeholder="Type Name"
+                        id={`typeName-${typeIndex}`}
+                        className="flex-1 border-0 border-b-2 border-gray-200 text-sm p-2.5 bg-transparent focus:outline-none focus:border-black"
+                    />
+                    <Controller
+                        control={control}
+                        name={`types.${typeIndex}.options`}
+                        render={({ field }) => (
+                            <button
+                                type="button"
+                                onClick={() => field.onChange([...field.value, { name: '', isActive: true }])}
+                                className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white"
+                                >
+                                  <svg className="w-[16px] h-[16px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5"/>
+                                  </svg>
+
+                                新增選項
+                            </button>
+                        )}
+                    />
+                </div>
+
+                <Controller
+                    control={control}
+                    name={`types.${typeIndex}.options`}
+                    render={({ field }) => (
+                      <>
+                        <div className="grid grid-cols-2 gap-6 p-8">
+                            {field.value.map((option, optionIndex) => (
+                                <div key={optionIndex} className="flex items-center space-x-4">
+                                    <label htmlFor={`option-${typeIndex}-${optionIndex}`} className="sm:text-right">選項{optionIndex + 1}</label>
+                                    <input
+                                        {...register(`types.${typeIndex}.options.${optionIndex}.optionName`)}
+                                        placeholder="Option Name"
+                                        className="flex-1 border-0 border-b-2 border-gray-200 text-sm p-2.5 bg-transparent focus:outline-none focus:border-black"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <hr/>
+                      </>
+
+                    )}
+                />
+            </div>
+        ))}
+        <div className="flex justify-between">
+          <button
+            type="submit"
+            className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-white bg-blue-700 hover:bg-blue-800"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-[16px] h-[16px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} >
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3" />
+              </svg>
+
+                儲存規格
+          </button>
+          <button
+              type="button"
+              onClick={() => appendType({ id: undefined, typeName: '', options: [{ id: undefined, optionName: ''}] })}
+              className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white"
+              >
+                <svg className="w-[16px] h-[16px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 17h6m-3 3v-6M4.857 4h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 9.143V4.857C4 4.384 4.384 4 4.857 4Zm10 0h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857h-4.286A.857.857 0 0 1 14 9.143V4.857c0-.473.384-.857.857-.857Zm-10 10h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 19.143v-4.286c0-.473.384-.857.857-.857Z"/>
+                </svg>
+                  新增規格
+            </button>
+        </div>
+    </form>
+);
+
 }
