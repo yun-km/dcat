@@ -23,6 +23,11 @@ const nextConfig = {
           destination: `${host}/storage/avatars/:path*`,
           // destination: 'http://35.185.162.249:8080/:path*',
         },
+        {
+          source: '/backed/images/:path*',
+          destination: `${host}/storage/:path*`,
+          // destination: 'http://35.185.162.249:8080/:path*',
+        },
       ];
     },
   };
