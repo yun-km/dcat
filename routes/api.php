@@ -2,8 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Api\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,7 @@ use App\Http\Controllers\Api\UserController;
 
 Route::post('/login', [LoginController::class, 'authenticate']);
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth:api'); 
+Route::get('/categories', [ProductController::class, 'getCategory']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -34,4 +36,6 @@ Route::middleware('auth:api')->group(function () {
         ];
     });
     Route::post('/profile',  [UserController::class, 'updateProfile']);
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::post('/products-types-options', [ProductController::class, 'storeProductTypeOptions']);
 });

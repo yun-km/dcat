@@ -11,6 +11,7 @@ class UserController extends Controller
 {
     public function updateProfile(Request $request)
     {
+        \Log::info('Request Data: ' . json_encode($request->all()));
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
