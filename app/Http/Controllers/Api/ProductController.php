@@ -6,8 +6,10 @@ use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ProductCategory;
+use App\Models\ProductItemType;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\ProductItemTypeOption;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -98,6 +100,83 @@ class ProductController extends Controller
                 'result' => 'success',
                 'message' => 'Product created successfully',
                 'product' => $product
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([ 
+                'result' => 'error','errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Product Creation Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'result' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function storeProductTypeOptions(Request $request)
+    {
+        try {
+
+            Log::info('Request Data: ' . json_encode($request->all()));
+
+            $validatedData = $request->validate([
+                'product_id' => 'required|integer',
+                'types' => 'required|array',
+                'types.*.id' => 'nullable|integer',
+                'types.*.typeName' => 'required|string|max:255',
+                'types.*.options' => 'nullable|array',
+                'types.*.options.*.id' => 'nullable|integer', 
+                'types.*.options.*.optionName' => 'required|string|max:255',
+            ]);
+
+            $createdTypes = [];
+    
+            foreach ($validatedData['types'] as $typeData) {
+                $productItemType = ProductItemType::updateOrCreate(
+                    ['id' => $typeData['id'] ?? null], 
+                    [
+                        'type_name' => $typeData['typeName'],
+                        'order' => 0,
+                        'product_id' => $request->product_id,
+                    ]
+                );
+    
+                $options = [];
+
+                if (isset($typeData['options'])) {
+                    foreach ($typeData['options'] as $optionData) {
+                        $option = ProductItemTypeOption::updateOrCreate(
+                            ['id' => $optionData['id'] ?? null],
+                            [
+                                'product_item_types_id' => $productItemType->id,
+                                'option_name' => $optionData['optionName'],
+                                'is_active' => 1,
+                                'product_id' => $request->product_id,
+                            ]
+                        );
+                        $options[] = [
+                            'id' => $option->id,
+                            'optionName' => $option->option_name,
+                            'product_item_types_id' => $option->product_item_types_id,
+                        ];
+                    }
+                }
+                
+                $createdTypes[] = [
+                    'id' => $productItemType->id,
+                    'typeName' => $productItemType->type_name,
+                    'options' => $options,
+                ];
+            }
+
+            return response()->json([
+                'result' => 'success',
+                'message' => 'Product item types and options created successfully!',
+                'types' => $createdTypes
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([ 

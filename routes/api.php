@@ -37,4 +37,5 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::post('/profile',  [UserController::class, 'updateProfile']);
     Route::post('/products', [ProductController::class, 'store']);
+    Route::post('/products-types-options', [ProductController::class, 'storeProductTypeOptions']);
 });
