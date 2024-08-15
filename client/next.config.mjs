@@ -16,17 +16,15 @@ const nextConfig = {
         {
           source: '/backed/api/:path*',
           destination: `${host}/api/:path*`,
-          // destination: 'http://35.185.162.249:8080/:path*',
+          // destination: 'http://xx.xxx.xxx.xxx:8080/:path*',
         },
         {
           source: '/backed/avatars/:path*',
           destination: `${host}/storage/avatars/:path*`,
-          // destination: 'http://35.185.162.249:8080/:path*',
         },
         {
           source: '/backed/images/:path*',
           destination: `${host}/storage/:path*`,
-          // destination: 'http://35.185.162.249:8080/:path*',
         },
       ];
     },

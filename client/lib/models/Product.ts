@@ -24,3 +24,17 @@ export type Option = {
   id?: number;
   optionName: string;
 }
+
+export type OptionSelection = {
+  type: string | number;
+  option: string | number;
+};
+
+export type InventoryEntry = {
+  productId: number;
+  productItemTypeOptionId: OptionSelection[];
+  price: number;
+  totalQuantity: number;
+};
+
+export type InventoryEntries = InventoryEntry[];
