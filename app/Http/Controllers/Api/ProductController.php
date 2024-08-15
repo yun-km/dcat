@@ -10,6 +10,7 @@ use App\Models\ProductItemType;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\ProductItemTypeOption;
+use App\Models\ProductOptionInventory;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -21,6 +22,22 @@ class ProductController extends Controller
         return response()->json($categories);
     }
 
+    public function getSellerProducts() {
+        try {
+            $userId = Auth::user()->id;
+
+            $products = Product::where('user_id', $userId)->get();
+    
+            if ($products->isEmpty()) {
+                return response()->json(['error' => 'No products found for this user'], 404);
+            }
+    
+            return response()->json($products, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred', 'message' => $e->getMessage(),], 500);
+        }
+    }
+    
     public function store(Request $request)
     {
         try {
@@ -193,4 +210,117 @@ class ProductController extends Controller
             ], 500);
         }
     }
+    public function getProductTypeOptions($productId)
+    {
+        $productItemTypes = ProductItemType::where('product_id', $productId)->get();
+
+        $result = [];
+
+        foreach ($productItemTypes as $type) {
+            $options = $type->options()->get();
+
+            $result[] = [
+                'id' => $type->getAttribute('id'),
+                'typeName' => $type->getAttribute('type_name'),
+                'options' => $options->map(function ($option) {
+                    return [
+                        'id' => $option->getAttribute('id'),
+                        'optionName' => $option->getAttribute('option_name'),
+                        'product_item_types_id' => $option->getAttribute('product_item_types_id'),
+                    ];
+                }),
+            ];
+        }
+
+        return response()->json($result);
+    }
+    public function getInventories($productId)
+    {
+        try {
+            $inventories = ProductOptionInventory::where('product_id', $productId)->get();
+
+            $formattedInventories = $inventories->map(function($inventory) {
+                $parsedOptions = json_decode($inventory->product_item_type_option_id, true);
+
+                $optionDetails = collect($parsedOptions)->map(function($option) {
+                    $type = ProductItemType::find($option['type']);
+                    $optionName = ProductItemTypeOption::find($option['option']);
+                    
+                    return [
+                        'typeName' => $type ? $type->type_name : '未知規格',
+                        'optionName' => $optionName ? $optionName->option_name : '未知選項'
+                    ];
+                });
+
+                return [
+                    'id' => $inventory->id,
+                    'productId' => $inventory->product_id,
+                    'price' => $inventory->price,
+                    'totalQuantity' => $inventory->total_quantity,
+                    'productItemTypeOptionId' => $optionDetails
+                ];
+            });
+
+            return response()->json($formattedInventories, 200);
+        } catch (\Exception $e) {
+            return response()->json(['result' => 'error','error' => 'Failed to fetch inventories', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function saveInventory(Request $request)
+    {
+        try {
+            Log::info('Request Data: ' . json_encode($request->all()));
+
+            $commonRules = [
+                'id' => 'nullable|integer',
+                'price' => 'required|integer',
+                'totalQuantity' => 'required|integer',
+                'productId' => 'required|integer',
+            ];
+
+            if (!$request->has('id')) {
+                $createRules = [
+                    'productItemTypeOptionId' => 'required|array',
+                    'productItemTypeOptionId.*.type' => 'required|integer',
+                    'productItemTypeOptionId.*.option' => 'required|integer',
+                ];
+
+                $rules = array_merge($commonRules, $createRules);
+                $validatedData = $request->validate($rules);
+
+                $inventory = ProductOptionInventory::updateOrCreate(
+                    [
+                        'product_id' => $validatedData['productId'],
+                        'product_item_type_option_id' => json_encode($validatedData['productItemTypeOptionId']),
+                    ],
+                    [
+                        'price' => $validatedData['price'],
+                        'total_quantity' => $validatedData['totalQuantity'],
+                    ]
+                );
+            } else {
+                $validatedData = $request->validate($commonRules);
+
+                $inventory = ProductOptionInventory::where('id', $validatedData['id'])
+                ->where('product_id', $validatedData['productId'])
+                ->first();
+
+                if ($inventory) {
+                    $inventory->update([
+                        'price' => $validatedData['price'],
+                        'total_quantity' => $validatedData['totalQuantity'],
+                    ]);
+                } else {
+                    return response()->json(['result' => 'error', 'error' => 'Inventory not found'], 404);
+                }
+            }
+
+            return response()->json(['result' => 'success', 'inventory' => $inventory], 201);
+        } catch (\Exception $e) {
+            return response()->json(['result' => 'error','error' => 'Failed to save inventory', 'message' => $e->getMessage()], 500);
+        }
+    }
+
 }
