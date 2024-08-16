@@ -20,9 +20,9 @@ use App\Http\Controllers\Api\ProductController;
 Route::post('/login', [LoginController::class, 'authenticate']);
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth:api'); 
 Route::get('/categories', [ProductController::class, 'getCategory']);
-Route::get('/product-type-options/{productId}', [ProductController::class, 'getProductTypeOptions']);
-Route::get('/product-option-inventories/{productId}', [ProductController::class, 'getInventories']);
-Route::post('/product-option-inventories', [ProductController::class, 'saveInventory']);
+// Route::get('/product-type-options/{productId}', [ProductController::class, 'getProductTypeOptions']);
+// Route::get('/product-option-inventories/{productId}', [ProductController::class, 'getInventories']);
+// Route::post('/product-option-inventories', [ProductController::class, 'saveInventory']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -42,4 +42,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/products', [ProductController::class, 'store']);
     Route::post('/products-types-options', [ProductController::class, 'storeProductTypeOptions']);
     Route::get('/seller-products', [ProductController::class, 'getSellerProducts']);
+    Route::get('/product-type-options/{productId}', [ProductController::class, 'getProductTypeOptions']);
+    Route::get('/product-option-inventories/{productId}', [ProductController::class, 'getInventories']);
+    Route::post('/product-option-inventories', [ProductController::class, 'saveInventory']);
 });
