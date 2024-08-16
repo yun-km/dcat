@@ -8,6 +8,15 @@ export const postFetcher = async (url: string, { arg }: any) => {
     },
     body: JSON.stringify(arg),
   });
+  const contentType = response.headers.get('content-type');
+
+  if (contentType && contentType.indexOf('application/json') !== -1) {
+    return response.json();
+  } else {
+    const errorText = await response.text();
+    console.error('Error Response:', errorText);
+    throw new Error('Server returned non-JSON response.');
+  }
 
   if (!response.ok) {
     const errorData = await response.json();
@@ -16,16 +25,15 @@ export const postFetcher = async (url: string, { arg }: any) => {
 
   return response.json();
 };
-export const getFetcher = async (url: string, { arg }: any) => {
+export const getFetcher = async (url: string, { arg: api_token }: { arg?: string }) => {
   const response = await fetch(url, {
     method: 'GET',
     credentials: "include",
     headers: {
       'Content-Type': 'application/json',
+      "Authorization": `Bearer ${api_token}`
     },
   });
-  console.log(response.status); // 打印状态码
-  console.log(response.url); // 打印实际请求的URL
 
   if (!response.ok) {
     const errorData = await response.json();
@@ -82,6 +90,7 @@ export const formDataFetcher2 = async (key: string, { arg }: any) => {
     body: formData, 
   });
   console.log(response.status); 
+  console.log(response.headers); 
   console.log(response.url); 
 
   const contentType = response.headers.get('content-type');

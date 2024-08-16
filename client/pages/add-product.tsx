@@ -30,21 +30,99 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     };
 };
 
+
+
 export default function AddProduct({ user, api_token }: { user: UserData, api_token: string }) {
-  const [selectedStep, setSelectedStep] = useState<number>(3);
+  const [selectedStep, setSelectedStep] = useState<number>(1);
+  const [selectedNewStep, setSelectedNewStep] = useState<number>(1);
+  const [productId, setProductId] = useState<number>(0);
   const [productInfo, setProductInfo] = useState<ProductInfo | null>(null);
   const [productTypes, setProductTypes] = useState<Types | null>(null);
-  const renderStepContent = () => {
-    switch (selectedStep) {
-      case 1:
-        return <AddProductItem api_token={api_token} setSelectedStep={setSelectedStep} setProductInfo={setProductInfo} productInfo={productInfo} />;
-      case 2:
-        return <AddProductItemType api_token={api_token} setSelectedStep={setSelectedStep} setProductTypes={setProductTypes} productTypes={productTypes} />;
-      case 3:
-        return <AddProductTypeOptions />;
-      default:
-        return <AddProductTypeOptions  />;
+  const [isResultSuccess, setIsResultSuccess] = useState<boolean | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const handleStepChange = async (newStep: number) => {
+    if (isSubmitting) return; 
+    setIsSubmitting(true);
+    console.log("newStep", newStep);
+    console.log("selectedStep", selectedStep);
+    if(newStep> selectedStep){
+      console.log("正在執行stepChange");
+      const currentForm = document.querySelector('form');
+      console.log('currentForm' , currentForm);
+      if (currentForm) {
+        currentForm.requestSubmit();
+        setSelectedNewStep(newStep);
+        if (currentForm.checkValidity()) {
+          console.log("useEffect1");
+          // if(productInfo){
+          //   console.log("useEffect2");
+          //   if(newStep == 3 && selectedStep == 1) {
+          //     setSelectedStep(2);
+          //   } else {
+          //     setSelectedStep(newStep);
+          //   }
+          // }
+
+        } else {
+          console.error("表單驗證失敗");
+        }
+      } else {
+        console.error("找不到表單元素，無法提交");
+      }
+    } else {
+      setSelectedStep(newStep);
     }
+    setIsSubmitting(false);
+  };
+
+  useEffect(() => {
+    console.log("useEffect3");
+    console.log("selectedNewStep", selectedNewStep);
+console.log("selectedStep", selectedStep);
+console.log("productTypes", productTypes);
+
+    if(productInfo) {
+      if(selectedNewStep == 3 && selectedStep == 1 && (!productTypes || Object.keys(productTypes).length === 0)) {
+        setSelectedStep(2);
+      } else {
+        setSelectedStep(selectedNewStep);
+      }
+      setIsResultSuccess(null);
+    }
+  },[productInfo,productTypes]);  
+
+
+  const stepSubmitHandlers = useRef<(() => Promise<boolean>)[]>([]);
+  // const handleStepChange = async (newStep: number) => {
+  //   if (stepSubmitHandlers.current[selectedStep - 1]) {
+  //     const isSubmitSuccessful = await stepSubmitHandlers.current[selectedStep - 1]();
+  
+  //     if (isSubmitSuccessful) {
+  //       setSelectedStep(newStep);
+  //     } else {
+  //       console.error("表單提交失敗，無法切換步驟");
+  //     }
+  //   }
+  // };
+
+  const stepComponents = [
+    <AddProductItem  registerSubmitHandler={(handler) => stepSubmitHandlers.current[0] = handler} api_token={api_token}  setSelectedStep={setSelectedStep} setProductInfo={setProductInfo} productInfo={productInfo} setProductId={setProductId}/>,
+    <AddProductItemType api_token={api_token}  setSelectedStep={setSelectedStep} productId={productId} setProductTypes={setProductTypes} productTypes={productTypes} />,
+    <AddProductTypeOptions api_token={api_token} productId={productId}/>,
+  ];
+
+  const stepTitles = [
+    '建立商品資訊',
+    '建立商品規格',
+    '建立庫存資訊',
+  ];
+
+  const renderStepContent = () => {
+    return stepComponents[selectedStep - 1] || <AddProductItem  registerSubmitHandler={(handler) => stepSubmitHandlers.current[0] = handler} api_token={api_token}  setSelectedStep={setSelectedStep} setProductInfo={setProductInfo} productInfo={productInfo} setProductId={setProductId}/>;
+  };
+
+  const renderTitleContent = () => {
+    return stepTitles[selectedStep - 1] || '建立商品資訊';
   };
 
   return (
@@ -52,14 +130,14 @@ export default function AddProduct({ user, api_token }: { user: UserData, api_to
       <Head>
         <title>新增商品</title>
       </Head>
-      <Container containerClass="flex flex-col max-w-screen-xl  w-full px-6 sm:flex-row">
+      <Container containerClass="flex flex-col max-w-screen-xl  w-full sm:flex-row">
         <article className="w-full text-wrap p-5 sm:w-1/5 sm:mt-6">
 
-        <ProductWizardSidebar selectedStep={selectedStep} setSelectedStep={setSelectedStep} />
+        <ProductWizardSidebar stepTitles={stepTitles} onStepChange={handleStepChange} selectedStep={selectedStep} setSelectedStep={setSelectedStep} />
 
         </article>
         <div className="w-full border rounded-xl p-5 bg-white gap-3 sm:w-4/5 sm:p-8 sm:mt-6">
-          <p className="text-3xl font-bold mb-5 mx-4 mt-4">新增商品</p>
+          <p className="text-3xl font-bold mb-5 mx-4 mt-4">{renderTitleContent()}</p>
           <hr />
           <div className="flex flex-col sm:flex-row justify-center pt-4 sm:p-10">
             <div className="w-full">
@@ -74,82 +152,36 @@ export default function AddProduct({ user, api_token }: { user: UserData, api_to
 }
 
 function ProductWizardSidebar({ 
+  stepTitles,
   selectedStep,
-  setSelectedStep
+  setSelectedStep,
+  onStepChange,
 } : {
+  stepTitles: any;
   selectedStep: number;
   setSelectedStep: React.Dispatch<React.SetStateAction<number>>;
+  onStepChange: (newStep: number) => void;
 }) 
 {
   return (
     <nav
-      className="flex flex-col px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50"
+      className="flex flex-col px-10 py-8 text-gray-700 border border-gray-200 rounded-lg bg-white text-nowrap"
       aria-label="Breadcrumb"
     >
-      <ol className="flex flex-col space-y-2">
-        <li className={`flex items-center ${selectedStep === 1 ? 'bg-blue-100 font-bold text-blue-600' : ''}`}>
-          <button
-            onClick={() => setSelectedStep(1)}
-            className="flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
+      <ol className="relative text-gray-500 border-s border-gray-200">                  
+        {stepTitles.map((label:string, index:number) => (
+          <li 
+            key={index + 1} 
+            className={`ms-8 font-bold hover:text-xl ${index ==  2 ? '' : 'mb-20'} ${selectedStep === index + 1 ? 'text-sky-700 font-bold text-lg' : ''}`} 
+            // onClick={() => setSelectedStep(index + 1)}
+            onClick={() => onStepChange(index + 1)}
           >
-            <svg
-              className="w-3 h-3 mr-2.5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
-            </svg>
-            Step 1
-          </button>
-        </li>
-        <li className={`flex items-center ${selectedStep === 2 ? 'bg-blue-100 font-bold text-blue-600' : ''}`}>
-          <button
-            onClick={() => setSelectedStep(2)}
-            className="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2"
-          >
-            <svg
-              className="w-3 h-3 mx-1 text-gray-400"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 6 10"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m1 9 4-4-4-4"
-              />
-            </svg>
-            Step 2
-          </button>
-        </li>
-        <li className={`flex items-center ${selectedStep === 3 ? 'bg-blue-100 font-bold text-blue-600' : ''}`} aria-current="page">
-          <button
-            onClick={() => setSelectedStep(3)}
-            className="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2"
-          >
-            <svg
-              className="w-3 h-3 mx-1 text-gray-400"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 6 10"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m1 9 4-4-4-4"
-              />
-            </svg>
-            Step 3
-          </button>
-        </li>
+            <span className={`absolute flex items-center justify-center w-8 h-8 ${selectedStep === index + 1 ? 'bg-sky-300 ring-4 ring-sky-200' : 'bg-gray-300 text-gray-500 ring-2 ring-gray-200'} rounded-full -start-4`}>
+              {index + 1}
+            </span>
+            <h3 className="font-medium leading-tight p-1">{label}</h3>
+          </li>
+        ))}
       </ol>
     </nav>
   );
@@ -159,12 +191,17 @@ export function AddProductItem({
   api_token,
   setSelectedStep,
   setProductInfo,
-  productInfo
+  productInfo,
+  setProductId,
+  registerSubmitHandler,
 }: { 
   api_token: string,
+  // setSelectedStep: (newStep: number) => void;
   setSelectedStep: React.Dispatch<React.SetStateAction<number>>; 
   setProductInfo: React.Dispatch<React.SetStateAction<ProductInfo | null>>; 
   productInfo?: ProductInfo | null;
+  setProductId: React.Dispatch<React.SetStateAction<number>>; 
+  registerSubmitHandler: (handler: () => Promise<boolean>) => void;
 }) 
 {
   const { trigger: categoriesTrigger, data: categoriesData } = useSWRMutation('/backed/api/categories', getFetcher);
@@ -202,7 +239,10 @@ export function AddProductItem({
     defaultValues: productInfo || {} 
   });
   const { trigger: productTrigger, data: productResult, error, isMutating } = useSWRMutation('/backed/api/products', formDataFetcher2);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const onSubmit = (data: any) => {
+    if (isSubmitting) return; 
+    setIsSubmitting(true);
     data['api_token'] = api_token;
     if(productInfo) {
       data['product_id'] = productInfo.id;
@@ -233,10 +273,13 @@ export function AddProductItem({
 
   const router = useRouter();
   useEffect(() => {
+    console.log('add product item');
+    setIsSubmitting(false);
     if(productResult?.result == "success") {
       // toast.success('新增成功！')
       // router.reload();
       setProductInfo(productResult?.product)
+      setProductId(productResult?.product.id)
       setSelectedStep(2);
     }
     if (productResult?.result === 'error') {
@@ -348,24 +391,33 @@ export function AddProductItem({
                         }
                       }}
                   />
-                  <button
+                  <div className="col-span-10 border-0 p-2.5 bg-transparent relative">
+                    <button
                       type="button"
                       onClick={() => handleButtonClick(coverFileInputRef)}
-                  >
+                    >
                       {selectedFile ? (
-                          <img src={selectedFile} alt="Selected file preview" className="w-20 h-20 sm:w-28 sm:h-28 text-large" />
+                        <img src={selectedFile} alt="Selected file preview" className="h-20 sm:h-28 text-large" />
                       ) : productInfo?.cover ? (
-                        <img src={`/backed/images/products/${productInfo?.cover}`} alt="Selected file preview" className="w-20 h-20 sm:w-28 sm:h-28 text-large" />
+                        <img src={`/backed/images/products/${productInfo?.cover}`} alt="Selected file preview" className=" h-20 sm:h-28 text-large" />
                       ) : (
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                            <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+                          <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
                         </svg>
+                      )}
+                    </button>
+                    {errors.cover && (
+                      <p className="absolute text-red-500 text-sm mt-1" style={{ top: '100%', left: '0', zIndex: '10' }}>
+                        {errors.cover.message}
+                      </p>
                     )}
-                  </button>
+                  </div>
               </>
           )}
         />
-      </div>
+
+      </div>        
+
       <div className="flex flex-col pb-4 sm:pb-10 sm:gap-8 sm:items-center sm:grid sm:grid-cols-12">
       <label htmlFor="pictures" className="items-center sm:text-right col-span-2">圖片組</label>
         <Controller
@@ -421,43 +473,34 @@ export function AddProductItem({
       </div>
 
       <div className="flex-col flex justify-center mb-0 sm:mt-8">
-        <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+        <button type="submit" className="bg-sky-500 text-white py-2 px-4 rounded">
           新增商品
         </button>
       </div>
     </form>
   );
 }
-const fakeProductTypes = [
-  {
-    id: 1,
-    typeName: "Color",
-    options: ["Red", "Blue", "Green"]
-  },
-  {
-    id: 2,
-    typeName: "Size",
-    options: ["Small", "Medium", "Large"]
-  },
-  {
-    id: 3,
-    typeName: "Size",
-    options: ["Small", "Medium", "Large"]
-  }
-];
 
-type ProductOption = {
-  color: string;
-  size: string;
-  price: number;
-  quantity: number;
-};
-export function AddProductTypeOptions() {
-  const productId = 22;
+export function AddProductTypeOptions({
+  api_token,
+  productId,
+}:{
+  api_token: string;
+  productId: number;
+}) {
   const fetcher = (url: string) => fetch(url).then(res => res.json());
 
-  const { data: typeOptionsData } = useSWR(`/backed/api/product-type-options/${productId}`, fetcher);
-  const { data: savedInventories, mutate: refreshSavedInventories } = useSWR(`/backed/api/product-option-inventories/${productId}`, fetcher);
+  // const { data: typeOptionsData } = useSWR(`/backed/api/product-type-options/${productId}`, fetcher);
+  const { trigger: typeOptionsTrigger, data: typeOptionsData } = useSWRMutation(`/backed/api/product-type-options/${productId}`, getFetcher);
+  useEffect(() => {
+    typeOptionsTrigger(api_token);
+    savedInventoriesTrigger(api_token);
+  }, []);
+  // const { data: savedInventories, mutate: savedInventoriesTrigger(api_token) } = useSWR(`/backed/api/product-option-inventories/${productId}`, fetcher);
+  const { trigger: savedInventoriesTrigger, data: savedInventories, error } = useSWRMutation(
+    `/backed/api/product-option-inventories/${productId}`, 
+    getFetcher
+  );
   const { trigger: saveInventory } = useSWRMutation('/backed/api/product-option-inventories', postFetcher);
 
   const { control, handleSubmit, reset } = useForm<{ inventoryEntries: InventoryEntry[] }>({
@@ -481,15 +524,17 @@ export function AddProductTypeOptions() {
   const onSubmit = async (data: any) => {
     console.log('Submitted Data:', data);
     for (let entry of data.inventoryEntries) {
+      entry['api_token'] = api_token;
       await saveInventory(entry);
     }
-    refreshSavedInventories();
+    savedInventoriesTrigger(api_token);
     reset(); 
   };
 
   const handleSaveEntry = async (entry: any) => {
+    entry['api_token'] = api_token;
      saveInventory(entry);
-    refreshSavedInventories();
+    savedInventoriesTrigger(api_token);
   };
 
   return (
@@ -569,7 +614,7 @@ export function AddProductTypeOptions() {
         {/* <button type="button" onClick={() => append({ productId, productItemTypeOptionId: [], price: 0, totalQuantity: 0 })}>
           新增規格组合
         </button> */}
-        <button type="submit" className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white">
+        <button type="submit" className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-sky-700 border border-sky-700 hover:bg-sky-700 hover:text-white">
           <svg className="w-[16px] h-[16px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5"/>
           </svg>
@@ -579,7 +624,7 @@ export function AddProductTypeOptions() {
       <br/>
       
       <table className=" w-full text-gray-500">
-        <thead className="text-gray-700 uppercase bg-gray-50">
+        <thead className="text-gray-700 uppercase bg-sky-100">
           <tr>
             <th className="w-1/2 px-4 py-2">規格</th>
             <th className="w-1/4 px-4 py-2">價格</th>
@@ -624,50 +669,60 @@ export function AddProductTypeOptions() {
 
 export function AddProductItemType({
   api_token,
+  productId,
   productTypes,
   setProductTypes,
   setSelectedStep
 }:{
   api_token: string
+  productId: number;
   productTypes?: Types | null;
   setProductTypes: React.Dispatch<React.SetStateAction<Types | null>>; 
-  setSelectedStep: React.Dispatch<React.SetStateAction<number>>; 
+  // setSelectedStep: (newStep: number) => void;
+  setSelectedStep: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const { control, handleSubmit, register, setError } = useForm<Types>({
     defaultValues:{
       types: productTypes?.types || [{ id: undefined, typeName: '', options: [{ id: undefined, optionName: '' }] }]
     }
   });
-  
-  
   const { fields: typeFields, append: appendType } = useFieldArray({
       control,
       name: 'types'
   });
 
   const { trigger, data, isMutating } = useSWRMutation('/backed/api/products-types-options', postFetcher);
-
   const onSubmit = (data: any) => {
     data['api_token'] = api_token
-    data['product_id'] = 22
-    console.log('Form Data:', data);
+    data['product_id'] = productId
+    console.log('add types Form Data:', data);
     trigger(data)
   };
 
+  let errors: any = [];
+  let typeName = "";
+  let optionName = "";
+
+  const [typeNameError, setTypeNameError] = useState<string[] | null>(null);
+  const [optionNameError, setOptionNameError] = useState<string[] | null>(null);
+  
   useEffect(() => {
     if(data?.result == "success") {
       // toast.success('新增成功！')
       // router.reload();
+
+      setTypeNameError([])
+      setOptionNameError([])
       setProductTypes({ types: data?.types });
       setSelectedStep(3);
     }
     if (data?.result === 'error') {
-      Object.keys(data.errors).forEach((key) => {
-        setError(key as keyof Types, {
-          type: 'manual',
-          message: data.errors[key][0] 
-        });
-      });
+      errors = data.errors;
+      console.log('Data:', errors);
+      typeName = 'types.0.typeName';
+      optionName = 'types.0.options.0.optionName';
+      setTypeNameError(errors[typeName]);
+      setOptionNameError(errors[optionName]);
     }
   },[data]);  
 
@@ -690,7 +745,7 @@ export function AddProductItemType({
                             <button
                                 type="button"
                                 onClick={() => field.onChange([...field.value, { name: '', isActive: true }])}
-                                className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white"
+                                className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-sky-700 border border-sky-700 hover:bg-sky-700 hover:text-white"
                                 >
                                   <svg className="w-[16px] h-[16px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5"/>
@@ -720,6 +775,17 @@ export function AddProductItemType({
                             ))}
                         </div>
                         <hr/>
+                        {optionNameError && (
+                          <p className=" text-red-500 text-sm mt-1" >
+                            請至少輸入一個選項
+                          </p>
+                        )}
+                        
+                        {typeNameError && (
+                          <p className=" text-red-500 text-sm mt-1" >
+                            請至少輸入一個規格
+                          </p>
+                        )}
                       </>
 
                     )}
@@ -729,18 +795,17 @@ export function AddProductItemType({
         <div className="flex justify-between">
           <button
             type="submit"
-            className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-white bg-blue-700 hover:bg-blue-800"
+            className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-white bg-sky-700 hover:bg-sky-800"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-[16px] h-[16px]" fill="none" viewBox="0 0 24 24" strokeWidth={2} >
                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3" />
               </svg>
-
                 儲存規格
           </button>
           <button
               type="button"
               onClick={() => appendType({ id: undefined, typeName: '', options: [{ id: undefined, optionName: ''}] })}
-              className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white"
+              className="flex px-3 py-2 text-xs font-medium rounded-lg gap-1 text-sky-700 border border-sky-700 hover:bg-sky-700 hover:text-white"
               >
                 <svg className="w-[16px] h-[16px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                   <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 17h6m-3 3v-6M4.857 4h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 9.143V4.857C4 4.384 4.384 4 4.857 4Zm10 0h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857h-4.286A.857.857 0 0 1 14 9.143V4.857c0-.473.384-.857.857-.857Zm-10 10h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 19.143v-4.286c0-.473.384-.857.857-.857Z"/>
