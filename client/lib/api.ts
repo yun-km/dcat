@@ -43,13 +43,13 @@ export const getFetcher = async (url: string, { arg: api_token }: { arg?: string
   return response.json();
 };
 
-export const formDataFetcher = async (url: string, api_token: string, formData: FormData) => {
+export const formDataFetcher = async (url: string, options: { arg: FormData }) => {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      "Authorization": `Bearer ${api_token}`
+      "Authorization": `Bearer ${options.arg.get('api_token')}`
     },
-    body: formData,
+    body: options.arg,
   });
 
   if (!response.ok) {
