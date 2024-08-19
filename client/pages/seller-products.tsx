@@ -31,13 +31,22 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 
 
 export default function SellerProduct({ user, api_token }: { user: UserData, api_token: string }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    const [searchTerm, setSearchTerm] = useState('');
+
     const { trigger: productsTrigger, data: productsData } = useSWRMutation(
-        `/backed/api/seller/products-inventories`,
+        `/backed/api/seller/products-inventories?page=${currentPage}&per_page=${perPage}&search=${searchTerm}`,
         getFetcher
     );
     useEffect(() => {
         productsTrigger(api_token);
     }, []);
+    useEffect(() => {
+        console.log(`Fetching data for page: ${currentPage}, per_page: ${perPage}`);
+        productsTrigger(api_token);
+    }, [currentPage, perPage, api_token]);
+
 
     const [showTbody, setShowTbody] = useState<{ [key: number]: boolean }>({});
 
@@ -51,6 +60,39 @@ export default function SellerProduct({ user, api_token }: { user: UserData, api
     const router = useRouter();
     const handleEditClick = (productId: number) => {
         router.push(`/seller/product/${productId}`);
+    };
+
+    const handleNextPage = () => {
+        if (productsData && productsData[1].current_page < productsData[1].last_page) {
+            console.log('Next page:', currentPage + 1);
+            setCurrentPage(prev => prev + 1);
+        } else {
+            console.log('Next page disabled');
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (productsData && productsData[1].current_page > 1) {
+            setCurrentPage(prev => prev - 1);
+        }
+    };
+
+    const handlePerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setPerPage(parseInt(event.target.value, 10));
+        setCurrentPage(1);
+    };
+
+    const handlePageClick = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setCurrentPage(1);  
+        productsTrigger(api_token);  
+    };
+    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(event.target.value);
     };
 
     return (
@@ -70,6 +112,41 @@ export default function SellerProduct({ user, api_token }: { user: UserData, api
                 <div className="w-full border rounded-xl p-5 bg-white gap-3 sm:p-8 sm:mt-6">
                     <p className="text-center text-3xl font-bold mb-5 mx-4 mt-4">您的商品</p>
                     <hr />
+                    
+                    <form onSubmit={handleSearchSubmit} className="flex items-left max-w-full p-3 justify-start gap-4">
+                        <label htmlFor="simple-search" className="sr-only">Search</label>
+                        <div className="relative w-full">
+                            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                id="simple-search"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-sky-500 dark:focus:border-sky-500"
+                                placeholder="Search branch name..."
+                                required
+                            />
+                        </div>
+                        <button type="submit" className="p-2.5 ms-2 text-sm font-medium text-white bg-sky-700 rounded-lg border border-sky-700 hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800">
+                            <svg className="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
+                            <span className="sr-only">Search</span>
+                        </button>
+                        <button
+                            type="submit" onClick={() => router.push(`/add-product`)}
+                            className="flex justify-center items-center w-32 p-1 text-sm font-medium rounded-lg gap-1 text-sky-700 border border-sky-700 hover:bg-sky-700 hover:text-white"
+                        >
+                            <svg className="w-auto flex" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5" />
+                            </svg>
+                            新增商品
+                        </button>
+                    </form>
                     <div className="flex flex-col sm:flex-row justify-center  border rounded-xl">
                         <table className="w-full text-sm text-left rtl:text-right text-gray-500 bg-transparent">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -85,7 +162,7 @@ export default function SellerProduct({ user, api_token }: { user: UserData, api
                             </thead>
                             <tbody>
                                 {productsData &&
-                                    productsData.map((productInventories: ProductInventories) => (
+                                    productsData[0].map((productInventories: ProductInventories) => (
                                         <tr key={productInventories.product.id} className="border-b text-center">
 
                                             <td className="flex">
@@ -183,6 +260,39 @@ export default function SellerProduct({ user, api_token }: { user: UserData, api
 
                             </tbody>
                         </table>
+                    </div>
+
+
+                    <div className="pagination-links flex flex-col items-center p-3">
+                        <ul className="flex items-center -space-x-px h-8 text-sm">
+                            {productsData && productsData[1].links && productsData[1].links.map((link: any, index: number) => (
+                                <li>
+                                    <button
+                                        key={index}
+                                        disabled={!link.url}
+                                        onClick={() => {
+                                            const page = link.url ? Number(new URL(link.url).searchParams.get('page')) : 1;
+                                            handlePageClick(page);
+                                        }}
+                                        className={`p-2 ${link.active ? 'active' : ''} flex items-center justify-center px-3 h-8 ms-0 `}
+                                    >
+                                        {link.label === "&laquo; Previous" ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+                                            </svg>
+                                        ) : link.label === "Next &raquo;" ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+                                            </svg>
+                                        ) : (
+                                            link.label
+                                        )}
+                                    </button>
+                                </li>
+
+                            ))}
+                        </ul>
+
                     </div>
                 </div>
             </Container>
