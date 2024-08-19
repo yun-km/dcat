@@ -22,6 +22,25 @@ class ProductController extends Controller
         return response()->json($categories);
     }
 
+    public function getProductInfo($productId)
+    {
+        try {
+            $product = Product::find($productId);
+    
+            if (!$product) {
+                return response()->json(['error' => 'No product found'], 404);
+            }
+    
+            return response()->json(['product' => $product], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'result' => 'error',
+                'error' => 'Failed to fetch product info',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getSellerProducts() {
         try {
             $userId = Auth::user()->id;
@@ -323,4 +342,27 @@ class ProductController extends Controller
         }
     }
 
+    public function getSellerProductsAndInventories() {
+        try {
+            $productsResponse = $this->getSellerProducts();
+            $products = $productsResponse->getData();
+            if (isset($products->error)) {
+                return $productsResponse;
+            }
+    
+            $productsWithInventories = collect($products)->map(function($product) {
+                $inventoriesResponse = $this->getInventories($product->id);
+                $inventories = $inventoriesResponse->getData();
+                return [
+                    'product' => $product,
+                    'inventories' => $inventories
+                ];
+            });
+    
+            return response()->json($productsWithInventories, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred', 'message' => $e->getMessage()], 500);
+        }
+    }
+    
 }

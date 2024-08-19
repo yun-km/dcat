@@ -45,4 +45,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/product-type-options/{productId}', [ProductController::class, 'getProductTypeOptions']);
     Route::get('/product-option-inventories/{productId}', [ProductController::class, 'getInventories']);
     Route::post('/product-option-inventories', [ProductController::class, 'saveInventory']);
+    Route::get('/seller/products-inventories', [ProductController::class, 'getSellerProductsAndInventories']);
+    Route::get('/seller/products/{productId}', [ProductController::class, 'getProductInfo']);
 });
