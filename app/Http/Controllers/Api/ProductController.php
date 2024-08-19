@@ -342,15 +342,28 @@ class ProductController extends Controller
         }
     }
 
-    public function getSellerProductsAndInventories() {
+    public function getSellerProductsAndInventories(Request $request) {
         try {
             $productsResponse = $this->getSellerProducts();
             $products = $productsResponse->getData();
             if (isset($products->error)) {
                 return $productsResponse;
             }
+
+            $search = $request->input('search');
+            $perPage = $request->input('per_page', 10);
+            $currentPage = $request->input('page', 1);
+            $userId = Auth::user()->id;
     
-            $productsWithInventories = collect($products)->map(function($product) {
+            $query = Product::where('user_id', $userId);
+            if ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                      ->orWhere('summary', 'like', "%{$search}%");
+            }
+
+            $products = $query->paginate($perPage, ['*'], 'page', $currentPage);
+            Log::info('Paginated products with inventories:', $products->toArray());
+            $productsWithInventories = $products->getCollection()->transform(function($product) {
                 $inventoriesResponse = $this->getInventories($product->id);
                 $inventories = $inventoriesResponse->getData();
                 return [
@@ -359,7 +372,7 @@ class ProductController extends Controller
                 ];
             });
     
-            return response()->json($productsWithInventories, 200);
+            return response()->json([$productsWithInventories, $products], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'An error occurred', 'message' => $e->getMessage()], 500);
         }
