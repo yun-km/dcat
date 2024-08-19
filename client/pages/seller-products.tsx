@@ -88,8 +88,8 @@ export default function SellerProduct({ user, api_token }: { user: UserData, api
 
     const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setCurrentPage(1);  
-        productsTrigger(api_token);  
+        setCurrentPage(1);
+        productsTrigger(api_token);
     };
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
@@ -98,21 +98,25 @@ export default function SellerProduct({ user, api_token }: { user: UserData, api
     return (
         <Layout mainClass="flex w-full h-auto items-center justify-center" user={user}>
             <Head>
-                <title>個人資訊</title>
+                <title>賣家商品資訊</title>
             </Head>
-            <Container containerClass="flex flex-col max-w-screen-2xl  w-full px-6 sm:flex-row">
-                <article className="w-full text-wrap p-5 sm:w-1/5 sm:mt-6">
-                    <div className="font-medium flex items-center">
-                        <button className="p-2">
-                            <p>您的商品</p>
-                            <h1>Welcome, {user.name}</h1>
-                        </button>
+            <Container containerClass="flex flex-col max-w-full  w-full sm:flex-row sm:mt-14">
+                <article className="w-full text-wrap sm:min-h-full sm:w-56 bg-white sm:fixed">
+                    <div className="font-medium items-center">
+                        <ul className="w-full flex flex-col gap-5 pt-5">
+                            <li className="px-10 hover:text-sky-700">
+                                <p>Welcome, {user.name}</p>
+                            </li>
+                            <li className="px-10 hover:text-sky-700">
+                                <p>您的商品</p>
+                            </li>
+                        </ul>
                     </div>
                 </article>
-                <div className="w-full border rounded-xl p-5 bg-white gap-3 sm:p-8 sm:mt-6">
+                <div className="w-full border rounded-xl p-5 bg-white gap-3 sm:p-8 sm:m-6 sm:ml-64 sm:mt-14">
                     <p className="text-center text-3xl font-bold mb-5 mx-4 mt-4">您的商品</p>
                     <hr />
-                    
+
                     <form onSubmit={handleSearchSubmit} className="flex items-left max-w-full p-3 justify-start gap-4">
                         <label htmlFor="simple-search" className="sr-only">Search</label>
                         <div className="relative w-full">
@@ -128,7 +132,6 @@ export default function SellerProduct({ user, api_token }: { user: UserData, api
                                 onChange={handleSearchChange}
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-sky-500 dark:focus:border-sky-500"
                                 placeholder="Search branch name..."
-                                required
                             />
                         </div>
                         <button type="submit" className="p-2.5 ms-2 text-sm font-medium text-white bg-sky-700 rounded-lg border border-sky-700 hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800">
@@ -266,7 +269,7 @@ export default function SellerProduct({ user, api_token }: { user: UserData, api
                     <div className="pagination-links flex flex-col items-center p-3">
                         <ul className="flex items-center -space-x-px h-8 text-sm">
                             {productsData && productsData[1].links && productsData[1].links.map((link: any, index: number) => (
-                                <li>
+                                <li key={index}>
                                     <button
                                         key={index}
                                         disabled={!link.url}

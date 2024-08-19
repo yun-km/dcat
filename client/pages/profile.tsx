@@ -60,24 +60,28 @@ export default function Profile({ user, api_token }: { user: UserData, api_token
             fileInputRef.current.click();
         }
     };
+    const { trigger: profileTrigger, data: profileData, error, isMutating } = useSWRMutation('/backed/api/profile', formDataFetcher);
 
     const [updateProfileResult, setUpdateProfileResult] = useState<any>(null); 
     const onSubmit = async (values: any) => {
         const formData = new FormData();
         formData.append('name', values.name);
         formData.append('email', values.email);
+        formData.append('api_token',api_token);
         if (fileInputRef.current?.files && fileInputRef.current.files[0]) {
             formData.append('avatar', fileInputRef.current.files[0]);
         } 
         formData.forEach((value, key) => {
             console.log(key, value);
         });
-
-        const result = await formDataFetcher('backed/api/profile',api_token, formData);
-        setUpdateProfileResult(result);
+        profileTrigger(formData);
     };
 
-    const { trigger, data:updateSessionData , error, isMutating } = useSWRMutation('/api/updateUser', getFetcher);
+    useEffect(() => {
+        setUpdateProfileResult(profileData);
+    },[profileData])
+
+    const { trigger, data:updateSessionData } = useSWRMutation('/api/updateUser', getFetcher);
 
     useEffect(() => {
         if (updateProfileResult?.result == "success") {
@@ -98,7 +102,7 @@ export default function Profile({ user, api_token }: { user: UserData, api_token
             <Head>
                 <title>個人資訊</title>
             </Head>
-            <Container containerClass="flex flex-col max-w-screen-lg  w-full px-6 sm:flex-row">
+            <Container containerClass="flex flex-col max-w-screen-lg  w-full px-6 sm:flex-row sm:mt-14">
                 <article className="w-full text-wrap p-5 sm:w-1/5 sm:mt-6">
                     <div className="font-medium flex items-center">
                         <button className="p-2">

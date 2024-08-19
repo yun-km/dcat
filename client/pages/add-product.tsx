@@ -122,9 +122,9 @@ export default function AddProduct({
   return (
     <Layout mainClass="flex w-full h-auto items-center justify-center" user={user}>
       <Head>
-        <title>新增商品</title>
+        <title>{product_id ? '編輯商品資訊' : '新增商品資訊'}</title>
       </Head>
-      <Container containerClass="flex flex-col max-w-screen-xl  w-full sm:flex-row">
+      <Container containerClass="flex flex-col max-w-screen-xl  w-full sm:flex-row sm:mt-14">
         <article className="w-full text-wrap p-5 sm:w-1/5 sm:mt-6">
           <ProductWizardSidebar stepTitles={stepTitles} onStepChange={handleStepChange} selectedStep={selectedStep} setSelectedStep={setSelectedStep} />
         </article>

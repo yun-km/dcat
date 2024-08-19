@@ -41,10 +41,11 @@ export function TopNavbar({ user }: { user: UserData }) {
 
   const menuItems = [
     "Profile",
+    "Seller",
     "Log Out",
   ];
   return (
-    <Navbar isBordered>
+    <Navbar isBordered className="sm:fixed">
       <NavbarContent className="sm:hidden" justify="start">
         <NavbarMenuToggle />
       </NavbarContent>
@@ -102,10 +103,15 @@ export function TopNavbar({ user }: { user: UserData }) {
                 <p className="m-2">{user.name}</p>
               </div>
             </DropdownTrigger>
-            <DropdownMenu aria-label="Profile Actions" variant="flat">
+            <DropdownMenu aria-label="Profile Actions">
               <DropdownItem key="profile" textValue="Profile" className="h-14 gap-2">
                 <Link href="/profile">
-                  <p className="font-semibold">Profile</p>
+                  <p className="font-semibold">個人資訊</p>
+                </Link>
+              </DropdownItem>
+              <DropdownItem key="seller" textValue="Seller" className="h-14 gap-2">
+                <Link href="/seller-products">
+                  <p className="font-semibold">賣家中心</p>
                 </Link>
               </DropdownItem>
               <DropdownItem key="logout" textValue="Log Out" color="danger">

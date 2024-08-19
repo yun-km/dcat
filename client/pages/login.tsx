@@ -39,7 +39,7 @@ export default function Login({ user }: { user: UserData }) {
             <Head>
                 <title>個人資訊</title>
             </Head>
-            <Container containerClass="flex flex-col max-w-screen-lg  w-full px-6 sm:flex-row">
+            <Container containerClass="flex flex-col max-w-screen-lg  w-full px-6 sm:flex-row sm:mt-14">
               <div className="bg-white rounded-lg shadow-lg p-8 mt-8 w-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
