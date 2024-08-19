@@ -30,7 +30,19 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   };
 };
 
-export default function AddProduct({ user, api_token }: { user: UserData, api_token: string }) {
+export default function AddProduct({ 
+  user,
+  api_token, 
+  product_id,
+  product_info,
+  product_types,
+ }: { 
+  user: UserData, 
+  api_token: string, 
+  product_id?: number,
+  product_info?: ProductInfo,
+  product_types?: Types, 
+}) {
   const [selectedStep, setSelectedStep] = useState<number>(1);
   const [selectedNewStep, setSelectedNewStep] = useState<number>(1);
   const [productId, setProductId] = useState<number>(0);
@@ -61,6 +73,23 @@ export default function AddProduct({ user, api_token }: { user: UserData, api_to
     }
   }, [selectedNewStep]);
 
+  useEffect(() => {
+    if(product_id) {
+      setProductId(product_id);
+    }
+  }, [product_id]);
+  useEffect(() => {
+    if(product_info) {
+      setProductInfo(product_info);
+    }
+  }, [product_info]);
+  useEffect(() => {
+    if(product_types) {
+      setProductTypes(product_types)
+    }
+  }, [product_types]);
+
+
   const stepComponents = [
     <AddProductItem
       api_token={api_token} productInfo={productInfo} setProductId={setProductId}
@@ -75,15 +104,15 @@ export default function AddProduct({ user, api_token }: { user: UserData, api_to
     />,
   ];
   const stepTitles = [
-    '建立商品資訊',
-    '建立商品規格',
-    '建立庫存資訊',
+    '商品資訊',
+    '商品規格',
+    '庫存資訊',
   ];
   const renderStepContent = () => {
     return stepComponents[selectedStep - 1] || <AddProductItem api_token={api_token} setSelectedStep={setSelectedStep} setProductInfo={setProductInfo} productInfo={productInfo} setProductId={setProductId} />;
   };
   const renderTitleContent = () => {
-    return stepTitles[selectedStep - 1] || '建立商品資訊';
+    return stepTitles[selectedStep - 1] || '商品資訊';
   };
   useEffect(() => {
     console.log("切換畫面", selectedStep);
@@ -181,7 +210,7 @@ export function AddProductItem({
     setSelectedFiles(files.map(file => URL.createObjectURL(file)));
   };
 
-  const { control, handleSubmit, formState: { errors }, setError } = useForm({
+  const { control, handleSubmit, formState: { errors }, setError, reset } = useForm({
     defaultValues: productInfo || {}
   });
   const { trigger: productTrigger, data: productResult, error, isMutating } = useSWRMutation('/backed/api/products', formDataFetcher);
@@ -235,6 +264,13 @@ export function AddProductItem({
       });
     }
   }, [productResult]);
+
+  useEffect(() => {
+    if (productInfo) { 
+      console.log("抓到商品資料", productInfo);
+      reset(productInfo);
+  }
+  }, [productInfo]);
 
   const FormField = ({ label, name, control, errors, type = "text", options, multiple = false, fileInputRef, handleFileChangeEvent }: any) => (
     <div className="flex flex-col pb-4 sm:pb-10 sm:gap-8 sm:items-center sm:grid sm:grid-cols-12">
@@ -537,7 +573,7 @@ export function AddProductItemType({
   setProductTypes: React.Dispatch<React.SetStateAction<Types | null>>;
   setSelectedStep: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const { control, handleSubmit, register, setError } = useForm<Types>({
+  const { control, handleSubmit, register, setError, reset  } = useForm<Types>({
     defaultValues: {
       types: productTypes?.types || [{ id: undefined, typeName: '', options: [{ id: undefined, optionName: '' }] }]
     }
@@ -584,6 +620,14 @@ export function AddProductItemType({
       {error && <p className="text-red-500 text-sm">必填</p>}
     </>
   );
+
+  useEffect(() => {
+    if (productTypes) { 
+      console.log("抓到商品規格選項", productTypes);
+      reset({ types: productTypes.types });
+  }
+  }, [productTypes]);
+  
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col ">
       {typeFields.map((typeField, typeIndex) => (

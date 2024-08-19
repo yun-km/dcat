@@ -31,6 +31,7 @@ export type OptionSelection = {
 };
 
 export type InventoryEntry = {
+  id?: number;
   productId: number;
   productItemTypeOptionId: OptionSelection[];
   price: number;
@@ -38,3 +39,8 @@ export type InventoryEntry = {
 };
 
 export type InventoryEntries = InventoryEntry[];
+
+export type ProductInventories= {
+  product: ProductInfo;
+  inventories: InventoryEntry[];
+}
