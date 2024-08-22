@@ -231,12 +231,12 @@ class ProductController extends Controller
     }
     public function getProductTypeOptions($productId)
     {
-        $productItemTypes = ProductItemType::where('product_id', $productId)->get();
+        $productItemTypes = ProductItemType::where('product_id', $productId)->where('is_active', 1)->get();
 
         $result = [];
 
         foreach ($productItemTypes as $type) {
-            $options = $type->options()->get();
+            $options = $type->options()->where('is_active', 1)->get();
 
             $result[] = [
                 'id' => $type->getAttribute('id'),

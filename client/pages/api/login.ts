@@ -4,7 +4,7 @@ import { sessionOptions, getSession } from "@/lib/session";
 
 export default async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
-    const host = process.env.HOST || 'http://localhost:8080';
+    const host = process.env.HOST || 'http://localhost:8081';
     const response = await fetch(`${host}/api/login`, {
       method: "POST",
       credentials: "include",

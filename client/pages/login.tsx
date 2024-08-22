@@ -5,6 +5,7 @@ import Image from 'next/image';
 import React from 'react';
 import useSWRMutation from 'swr/mutation';
 import { useForm, FieldError } from 'react-hook-form';
+import { useRouter } from 'next/router';
 
 const postFetcher = (url: string, { arg }: any) => 
   fetch(url, {
@@ -25,7 +26,15 @@ export default function Login({ title }: { title: string }) {
       console.error('Form submission error:', err);
     }
   };
+  const router = useRouter();
+  const handleGoogleLogin = () => {
+    router.push('/backed/auth/google');
+  };
 
+  const handleLineLogin = () => {
+    router.push('/backed/auth/line');
+  };
+  
     return (
         <Layout mainClass="flex w-full h-auto items-center justify-center">
             <Head>
@@ -84,7 +93,40 @@ export default function Login({ title }: { title: string }) {
                       </p>
                     </form>
                   </div>
-
+                  <div className="flex items-center justify-end mt-4">
+              <a
+                className="btn"
+                onClick={handleGoogleLogin}
+                style={{
+                  background: '#FF3333',
+                  color: 'white',
+                  padding: '5px',
+                  width: '100%',
+                  textAlign: 'center',
+                  borderRadius: '5px',
+                  display: 'block',
+                }}
+              >
+                Google 帳戶登入
+              </a>
+            </div>
+            <div className="flex items-center justify-end mt-4">
+              <a
+                className="btn"
+                onClick={handleLineLogin}
+                style={{
+                  background: '#FF3333',
+                  color: 'white',
+                  padding: '5px',
+                  width: '100%',
+                  textAlign: 'center',
+                  borderRadius: '5px',
+                  display: 'block',
+                }}
+              >
+                LINE 帳戶登入
+              </a>
+            </div>
                   <div className="flex justify-center items-center">
                     {/* <img
                       src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"

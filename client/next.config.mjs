@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const host = process.env.HOST || 'http://localhost:3000';
+const host = process.env.HOST || 'http://localhost:8081';
 
 const nextConfig = {
     images: {
@@ -16,7 +16,20 @@ const nextConfig = {
         {
           source: '/backed/api/:path*',
           destination: `${host}/api/:path*`,
-          // destination: 'http://35.185.162.249:8080/:path*',
+          // destination: 'http://xx.xxx.xxx.xxx:8080/:path*',
+        },
+        {
+          source: '/backed/auth/:path*',
+          destination: `${host}/auth/:path*`,
+          // destination: 'http://xx.xxx.xxx.xxx:8080/:path*',
+        },
+        {
+          source: '/backed/avatars/:path*',
+          destination: `${host}/storage/avatars/:path*`,
+        },
+        {
+          source: '/backed/images/:path*',
+          destination: `${host}/storage/:path*`,
         },
       ];
     },

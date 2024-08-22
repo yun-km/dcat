@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Auth\LoginController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,4 +20,8 @@ Route::get('/', function () {
 //     return view('home');
 // });
 
+Route::get('/auth/line', [LoginController::class, 'lineLogin']);
+Route::get('/auth/line/callback', [LoginController::class, 'lineLoginCallback']);
+Route::get('/auth/google', [LoginController::class, 'googleLogin'])->name('/auth/google');
+Route::get('/auth/google/callback', [LoginController::class, 'googleLoginCallback'])->name('/auth/google/callback');
 require __DIR__.'/auth.php';

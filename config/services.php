@@ -29,5 +29,14 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-
+    'google' => [
+    'client_id' => env('G_CLIENT_ID'),
+    'client_secret' => env('G_CLIENT_SECRET'),
+    'redirect' => env('G_REDIRECT'),
+    ],
+    'line' => [
+        'client_id' => env('LINE_CLIENT_ID'),
+        'client_secret' => env('LINE_CLIENT_SECRET'),
+        'redirect' => env('LINE_REDIRECT_URI')
+    ],
 ];

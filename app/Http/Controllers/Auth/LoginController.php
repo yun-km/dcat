@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 
+use App\Models\User;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -124,4 +126,131 @@ class LoginController extends Controller
 
         return back()->with('success',  __('auth.avatars update success'));
     }
+    public function lineLogin()
+    {
+        return Socialite::driver('line')->redirect();
+    }
+
+    public function lineLoginCallback()
+    {
+        $user = Socialite::driver('line')->stateless()->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))->user();
+        // dd($user);
+        $user->api_token = Str::random(60);
+        $existUser = User::where('email', $user->email)->first();
+        $findUser = User::where('line_id', $user->id)->first();
+        if($findUser){
+            Auth::login($findUser);
+            $findUser->api_token = Str::random(60);
+            $findUser->save();
+            $user = $findUser;
+            $message = 'Login success';
+        }
+      
+        if($existUser != '' && $existUser->email === $user->email){
+            $existUser->line_id = $user->id;
+            $existUser->api_token = $user->api_token;
+            $existUser->save();
+            $user = $existUser;
+            $message = 'line Login success';
+            Auth::login($existUser);
+        }else{
+      
+            $newUser = User::create([
+                'name' => $user->name,
+                'email' => $user->email,
+                'line_id'=> $user->id,
+                'password' => bcrypt('fromsocialwebsite'),
+                'api_token' => $user->api_token,
+                ]);
+            Auth::login($newUser);
+            $user = $newUser;
+            $message = 'Regiest success';
+        }
+        // return[
+        //     'result' => 'success',
+        //     'message' => __($message),
+        //     'content' => [
+        //         'api_token' => $user->api_token,
+        //         'user' => [
+        //             'name' => $user->name,
+        //             'email' => $user->email,
+        //             'avatar' =>  $user->avatar, 
+        //         ],
+        //     ],
+
+        // ];
+        $token = $user->api_token; 
+        $userInfo = json_encode([
+            'name' => $user->name,
+            'email' => $user->email,
+            'avatar' => $user->avatar,
+        ]);
+    
+        return redirect()->away('http://localhost:3000/callback?token=' . $token . '&user=' . urlencode($userInfo));
+	
+	}
+
+    public function googleLogin()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function googleLoginCallback()
+    {
+        $user = Socialite::driver('google')->stateless()->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))->user();
+        // dd($user);
+        $message = '';
+        $user->api_token = Str::random(60);
+        $existUser = User::where('email', $user->email)->first();
+        $findUser = User::where('google_account', $user->id)->first();
+
+        if($findUser){
+            Auth::login($findUser);
+            $findUser->api_token = Str::random(60);
+            $findUser->save();
+            $user = $findUser;
+            $message = 'Login success';
+        }
+      
+        if($existUser != '' && $existUser->email === $user->email){
+            $existUser->google_account = $user->id;
+            $existUser->api_token = $user->api_token;
+            $existUser->save();
+            $user = $existUser;
+            $message = 'Google Login success';
+            Auth::login($existUser);
+        }else{
+            $newUser = User::create([
+                'name' => $user->name,
+                'email' => $user->email,
+                'google_account'=> $user->id,
+                'password' => bcrypt('fromsocialwebsite'),
+                'api_token' => $user->api_token,
+                ]);
+            Auth::login($newUser);
+            $user = $newUser;
+            $message = 'Regiest success';
+        }
+        // return[
+        //     'result' => 'success',
+        //     'message' => __($message),
+        //     'content' => [
+        //         'api_token' => $user->api_token,
+        //         'user' => [
+        //             'name' => $user->name,
+        //             'email' => $user->email,
+        //             'avatar' =>  $user->avatar, 
+        //         ],
+        //     ],
+
+        // ];
+        $token = $user->api_token; // 假設已生成
+        $userInfo = json_encode([
+            'name' => $user->name,
+            'email' => $user->email,
+            'avatar' => $user->avatar,
+        ]);
+    
+        return redirect()->away('http://localhost:3000/callback?token=' . $token . '&user=' . urlencode($userInfo));
+	}
 }
